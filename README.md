@@ -76,6 +76,14 @@ npm run dev
 - `DATABASE_URL`
 - `JWT_SECRET`
 
+## Live demo (GitHub Pages)
+
+**URL:** [https://daniellasacks.github.io/AI-RESUME-BUILDER/](https://daniellasacks.github.io/AI-RESUME-BUILDER/)
+
+Deployment is handled by [`.github/workflows/deploy-web.yml`](.github/workflows/deploy-web.yml) (Vite build + GitHub Actions).
+
+In the repo **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions** (not “Deploy from branch” / `docs`). The `docs/` folder exists only so the legacy Pages Jekyll step does not fail if it still runs in parallel.
+
 ## Docs
 
 - `ARCHITECTURE.md`
