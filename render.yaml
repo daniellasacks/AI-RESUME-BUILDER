@@ -1,0 +1,28 @@
+# Optional: deploy the API on Render (free tier) for a fully working live demo.
+# Connect this repo at https://dashboard.render.com → New → Blueprint
+services:
+  - type: web
+    name: ai-resume-builder-api
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm install && npm run build -w @app/api && cd apps/api && npx prisma generate
+    startCommand: cd apps/api && npx prisma migrate deploy && node dist/main.js
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: '20'
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ai-resume-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: WEB_ORIGIN
+        value: https://daniellasacks.github.io
+      - key: OPENAI_API_KEY
+        sync: false
+
+databases:
+  - name: ai-resume-db
+    plan: free

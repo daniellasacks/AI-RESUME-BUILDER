@@ -4,8 +4,13 @@ import { HttpExceptionFilter } from './common/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const corsOrigins = [
+    /^http:\/\/localhost:\d+$/,
+    /^https:\/\/daniellasacks\.github\.io$/,
+    ...(process.env.WEB_ORIGIN ? [process.env.WEB_ORIGIN] : []),
+  ];
   app.enableCors({
-    origin: [/^http:\/\/localhost:\d+$/],
+    origin: corsOrigins,
     credentials: true,
   });
   app.useGlobalFilters(new HttpExceptionFilter());
