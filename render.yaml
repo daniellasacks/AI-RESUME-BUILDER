@@ -2,7 +2,7 @@
 # Connect this repo at https://dashboard.render.com → New → Blueprint
 services:
   - type: web
-    name: ai-resume-builder-api
+    name: daniellasacks-ai-resume-api
     runtime: node
     plan: free
     rootDir: .

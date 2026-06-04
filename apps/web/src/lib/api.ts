@@ -1,5 +1,6 @@
 export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 export const TOKEN_KEY = 'ai-resume-token'
+export const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
 
 export class ApiError extends Error {
   status: number
@@ -24,6 +25,11 @@ export function setToken(token: string | null) {
 }
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
+  if (DEMO_MODE) {
+    const { demoApi } = await import('./demoApi')
+    return demoApi<T>(path, init)
+  }
+
   const token = getToken()
   const res = await fetch(`${API_URL}${path}`, {
     ...init,

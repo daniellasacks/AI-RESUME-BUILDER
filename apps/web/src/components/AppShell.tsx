@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
+import { DEMO_MODE } from '../lib/api'
 import { ErrorBoundary } from './ErrorBoundary'
 
 function Brand() {
@@ -57,6 +58,12 @@ export function AppShell() {
           </div>
         </div>
       </header>
+
+      {DEMO_MODE ? (
+        <div className="border-b border-amber-900/60 bg-amber-950/30 px-4 py-2 text-center text-xs text-amber-100">
+          Portfolio demo mode — sign up, edit resumes, run ATS checks, and export. Data is stored in your browser only.
+        </div>
+      ) : null}
 
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[240px_1fr]">
         <aside className="sticky top-[84px] hidden h-[calc(100vh-110px)] flex-col gap-1 self-start overflow-auto rounded-2xl border border-zinc-800 bg-zinc-950 p-3 lg:flex">

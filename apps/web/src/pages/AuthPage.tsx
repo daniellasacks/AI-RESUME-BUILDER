@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { api } from '../lib/api'
+import { api, DEMO_MODE } from '../lib/api'
 import { useAuth } from '../lib/auth'
 
 export function AuthPage() {
@@ -79,6 +79,11 @@ export function AuthPage() {
         </section>
 
         <section className="rounded-3xl border border-zinc-800 bg-zinc-950 p-6">
+          {DEMO_MODE ? (
+            <div className="mb-4 rounded-xl border border-amber-900/60 bg-amber-950/30 p-3 text-xs text-amber-100">
+              Live demo mode: create any account (password min 8 chars). Your data stays in this browser.
+            </div>
+          ) : null}
           <div>
             <div className="text-base font-semibold text-zinc-100">{mode === 'register' ? 'Create account' : 'Sign in'}</div>
             <div className="mt-1 text-sm text-zinc-400">JWT auth + resume history + exports.</div>

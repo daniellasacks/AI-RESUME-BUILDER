@@ -31,7 +31,7 @@ jobs:
         run: npm run build -w @app/web
         env:
           GITHUB_PAGES: 'true'
-          VITE_API_URL: ${{ vars.VITE_API_URL || 'https://ai-resume-builder-api.onrender.com' }}
+          VITE_DEMO_MODE: 'true'
 
       - name: SPA fallback for client-side routing
         run: cp apps/web/dist/index.html apps/web/dist/404.html
