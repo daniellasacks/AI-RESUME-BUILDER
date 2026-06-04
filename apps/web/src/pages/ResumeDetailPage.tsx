@@ -4,6 +4,10 @@ import { api } from '../lib/api'
 import { useToasts } from '../components/toast'
 import { ResumePreview } from '../components/ResumePreview'
 import type { ResumeJson } from '../lib/resumeSchema'
+import { Alert, Button, ButtonLink, Card } from '../components/ui'
+
+const selectCls =
+  'h-10 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 text-sm text-white outline-none focus:border-indigo-500/50'
 
 type ResumeVersion = {
   id: string
@@ -133,45 +137,33 @@ export function ResumeDetailPage() {
   }
 
   return (
-    <div className="grid gap-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
-          <div className="text-xs text-zinc-500">
-            <Link to="/app/resumes" className="text-zinc-300 hover:text-zinc-100">
-              Resumes
-            </Link>{' '}
-            <span className="text-zinc-700">/</span>
-          </div>
-          <div className="mt-1 truncate text-lg font-semibold text-zinc-100">{data?.title ?? 'Resume'}</div>
-          <div className="mt-1 text-sm text-zinc-400">Browse versions, export, and compare.</div>
+          <Link to="/app/resumes" className="text-xs text-zinc-500 hover:text-white">
+            ← Resumes
+          </Link>
+          <h1 className="mt-2 truncate text-2xl font-semibold tracking-tight text-white">{data?.title ?? 'Resume'}</h1>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button
-            disabled={!selectedVersion}
-            onClick={() => void download('pdf')}
-            className="h-9 rounded-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 px-3 text-xs font-semibold text-white disabled:opacity-60"
-          >
-            Download PDF
-          </button>
-          <button
-            disabled={!selectedVersion}
-            onClick={() => void download('docx')}
-            className="h-9 rounded-lg border border-zinc-800 bg-zinc-900 px-3 text-xs font-semibold text-zinc-100 hover:bg-zinc-800 disabled:opacity-60"
-          >
-            Download DOCX
-          </button>
+          <Button disabled={!selectedVersion} onClick={() => void download('pdf')}>
+            PDF
+          </Button>
+          <Button variant="secondary" disabled={!selectedVersion} onClick={() => void download('docx')}>
+            DOCX
+          </Button>
         </div>
       </div>
 
-      {error ? <div className="rounded-2xl border border-rose-900 bg-rose-950/40 p-4 text-sm text-rose-200">{error}</div> : null}
+      {error ? <Alert tone="error">{error}</Alert> : null}
 
-      <div className="grid gap-4 lg:grid-cols-[360px_1fr]">
-        <section className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-          <div className="text-sm font-semibold text-zinc-100">Versions</div>
+      <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
+        <Card className="p-4">
+          <p className="text-sm font-medium text-white">Versions</p>
           <div className="mt-3 grid gap-2">
             {!data ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-12 animate-pulse rounded-xl border border-zinc-800 bg-zinc-950" />
+                <div key={i} className="h-12 animate-pulse rounded-xl bg-white/[0.04]" />
               ))
             ) : data.versions.length === 0 ? (
               <div className="text-sm text-zinc-300">No versions yet.</div>
@@ -181,245 +173,155 @@ export function ResumeDetailPage() {
                   key={v.id}
                   onClick={() => setSelected(v.id)}
                   className={
-                    'w-full rounded-xl border px-3 py-2 text-left transition ' +
-                    (v.id === selected ? 'border-violet-500 bg-violet-500/10' : 'border-zinc-800 bg-zinc-950 hover:bg-zinc-900/40')
+                    'w-full rounded-xl border px-3 py-2.5 text-left transition ' +
+                    (v.id === selected
+                      ? 'border-indigo-500/40 bg-indigo-500/10'
+                      : 'border-white/[0.06] bg-transparent hover:bg-white/[0.03]')
                   }
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <div className="text-sm font-semibold text-zinc-100">v{v.version}</div>
-                    <div className="text-xs text-zinc-500">{new Date(v.createdAt).toLocaleString()}</div>
+                    <div className="text-sm font-medium text-white">v{v.version}</div>
+                    <div className="text-xs text-zinc-600">{new Date(v.createdAt).toLocaleDateString()}</div>
                   </div>
-                  <div className="mt-1 text-xs text-zinc-400">
-                    {v.derivedFromVersionId ? 'Derived' : 'Base'} • {v.jobTargetId ? 'Job-targeted' : 'General'} •{' '}
-                    {v.templateId ? 'Templated' : 'Default template'}
-                  </div>
+                  {v.jobTargetId ? (
+                    <div className="mt-1 text-[10px] uppercase tracking-wider text-indigo-400/80">Tailored</div>
+                  ) : null}
                 </button>
               ))
             )}
           </div>
-          <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-900/40 p-3 text-xs text-zinc-300">
-            <div className="font-semibold text-zinc-100">Compare</div>
-            <div className="mt-2 grid gap-2">
-              <label className="grid gap-1">
-                <span className="text-[11px] text-zinc-400">Against</span>
-                <select
-                  value={compareTo ?? ''}
-                  onChange={(e) => setCompareTo(e.target.value || null)}
-                  className="h-9 rounded-xl border border-zinc-800 bg-zinc-950 px-2 text-xs text-zinc-100 outline-none focus:border-violet-500"
-                >
-                  {(data?.versions ?? []).map((v) => (
-                    <option key={v.id} value={v.id}>
-                      v{v.version} • {new Date(v.createdAt).toLocaleDateString()}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <div className="text-[11px] text-zinc-400">We diff the structured JSON and list changed paths.</div>
-            </div>
+          <div className="mt-4 border-t border-white/[0.06] pt-4">
+            <p className="text-xs font-medium text-zinc-500">Compare to</p>
+            <select value={compareTo ?? ''} onChange={(e) => setCompareTo(e.target.value || null)} className={'mt-2 ' + selectCls}>
+              {(data?.versions ?? []).map((v) => (
+                <option key={v.id} value={v.id}>
+                  v{v.version}
+                </option>
+              ))}
+            </select>
           </div>
-        </section>
+        </Card>
 
-        <section className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
-          <div className="text-sm font-semibold text-zinc-100">Selected version</div>
+        <div className="space-y-4">
           {selectedVersion ? (
-            <div className="mt-3 grid gap-3">
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-sm text-zinc-300">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="font-semibold text-zinc-100">v{selectedVersion.version}</div>
-                  <div className="text-xs text-zinc-500">{new Date(selectedVersion.createdAt).toLocaleString()}</div>
-                </div>
-                <div className="mt-2 text-xs text-zinc-400">
-                  Template: {selectedVersion.templateId ?? '(none)'} • Job target: {selectedVersion.jobTargetId ?? '(none)'}
-                </div>
-              </div>
-
+            <>
               {selectedVersion.structuredJson ? (
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                  <div className="text-sm font-semibold text-zinc-100">Preview</div>
-                  <div className="mt-3 max-h-[420px] overflow-auto">
+                <Card className="p-4">
+                  <div className="max-h-[480px] overflow-auto">
                     <ResumePreview resume={selectedVersion.structuredJson as ResumeJson} />
                   </div>
-                </div>
+                </Card>
               ) : null}
 
-              <div className="grid gap-2 sm:grid-cols-2">
-                <Link
-                  to={`/app/resumes/${data?.id ?? ''}/edit`}
-                  className="rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm font-semibold text-zinc-100 hover:bg-zinc-900/40"
+              <div className="flex flex-wrap gap-2">
+                <ButtonLink to={`/app/resumes/${data?.id ?? ''}/edit`} variant="secondary">
+                  Edit
+                </ButtonLink>
+                <ButtonLink
+                  to={
+                    selectedVersion
+                      ? `/app/templates?resumeId=${encodeURIComponent(data?.id ?? '')}&versionId=${encodeURIComponent(selectedVersion.id)}`
+                      : '/app/templates'
+                  }
+                  variant="secondary"
                 >
-                  Edit structured data
-                </Link>
-                <Link
-                  to={selectedVersion ? `/app/templates?resumeId=${encodeURIComponent(data?.id ?? '')}&versionId=${encodeURIComponent(selectedVersion.id)}` : '/app/templates'}
-                  className="rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm font-semibold text-zinc-100 hover:bg-zinc-900/40"
-                >
-                  Choose template
-                </Link>
+                  Template
+                </ButtonLink>
               </div>
 
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                <div className="text-sm font-semibold text-zinc-100">Tailor to job target</div>
-                <div className="mt-1 text-xs text-zinc-400">
-                  AI rewrites this version for the selected job (creates a new derived version).
-                </div>
-                <div className="mt-3 flex flex-wrap items-end gap-2">
-                  <label className="grid flex-1 gap-1 min-w-[200px]">
-                    <span className="text-[11px] text-zinc-400">Job target</span>
-                    <select
-                      value={jobTargetId}
-                      onChange={(e) => setJobTargetId(e.target.value)}
-                      className="h-9 rounded-xl border border-zinc-800 bg-zinc-950 px-2 text-xs text-zinc-100 outline-none focus:border-violet-500"
-                    >
-                      {(jobTargets ?? []).length === 0 ? (
-                        <option value="">No job targets yet</option>
-                      ) : (
-                        (jobTargets ?? []).map((jt) => (
-                          <option key={jt.id} value={jt.id}>
-                            {jt.title}
-                            {jt.company ? ` — ${jt.company}` : ''}
-                          </option>
-                        ))
-                      )}
-                    </select>
-                  </label>
-                  <button
-                    disabled={tailorBusy || !jobTargetId || !selectedVersion}
-                    onClick={() => void tailorToJob()}
-                    className="h-9 rounded-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 px-3 text-xs font-semibold text-white disabled:opacity-60"
-                  >
-                    {tailorBusy ? 'Tailoring…' : 'Tailor with AI'}
-                  </button>
-                  <Link
-                    to="/app/job-targets"
-                    className="h-9 rounded-lg border border-zinc-800 bg-zinc-900 px-3 text-xs font-semibold text-zinc-100 hover:bg-zinc-800 inline-flex items-center"
-                  >
-                    Manage targets
-                  </Link>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="text-sm font-semibold text-zinc-100">Version comparison</div>
-                  <div className="text-xs text-zinc-500">
-                    {compareVersion ? `v${compareVersion.version} → v${selectedVersion.version}` : ''}
-                  </div>
-                </div>
-                <div className="mt-2 text-xs text-zinc-400">
-                  Showing changed JSON paths (max 120). This is intentionally interview-friendly: you can explain “what changed” without a wall of text.
-                </div>
-                <div className="mt-3 grid gap-2">
-                  {!diff ? (
-                    <div className="text-sm text-zinc-300">Select versions to compare.</div>
-                  ) : diff.paths.length === 0 ? (
-                    <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3 text-xs text-zinc-300">No detected changes.</div>
-                  ) : (
-                    <div className="max-h-72 overflow-auto rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">
-                      <ul className="space-y-1 text-xs text-zinc-200">
-                        {diff.paths.map((p) => (
-                          <li key={p} className="font-mono text-[11px] text-zinc-200">
-                            {p}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <div className="text-sm font-semibold text-zinc-100">ATS score</div>
-                    <div className="mt-1 text-xs text-zinc-400">Run an evaluation against a saved job target.</div>
-                  </div>
-                  <button
-                    disabled={atsBusy || !jobTargetId}
-                    onClick={() => void evaluateAts()}
-                    className="h-9 rounded-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 px-3 text-xs font-semibold text-white disabled:opacity-60"
-                  >
-                    {atsBusy ? 'Evaluating…' : 'Evaluate'}
-                  </button>
-                </div>
-
-                <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_220px]">
-                  <label className="grid gap-1">
-                    <span className="text-[11px] text-zinc-400">Job target</span>
-                    <select
-                      value={jobTargetId}
-                      onChange={(e) => setJobTargetId(e.target.value)}
-                      className="h-9 rounded-xl border border-zinc-800 bg-zinc-950 px-2 text-xs text-zinc-100 outline-none focus:border-violet-500"
-                    >
-                      {(jobTargets ?? []).map((jt) => (
+              <Card className="p-4">
+                <p className="text-sm font-medium text-white">Tailor</p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <select value={jobTargetId} onChange={(e) => setJobTargetId(e.target.value)} className={'min-w-[180px] flex-1 ' + selectCls}>
+                    {(jobTargets ?? []).length === 0 ? (
+                      <option value="">No targets</option>
+                    ) : (
+                      (jobTargets ?? []).map((jt) => (
                         <option key={jt.id} value={jt.id}>
                           {jt.title}
-                          {jt.company ? ` — ${jt.company}` : ''}
+                          {jt.company ? ` · ${jt.company}` : ''}
                         </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">
-                    <div className="text-[11px] text-zinc-400">Latest score</div>
-                    <div className="mt-1 text-2xl font-semibold text-zinc-100">{typeof ats?.score === 'number' ? ats.score : '—'}</div>
-                    <div className="mt-1 text-xs text-zinc-400">
-                      Verdict:{' '}
-                      <span className="font-semibold text-zinc-200">{ats?.verdict ? String(ats.verdict) : '—'}</span>
-                    </div>
-                    {typeof ats?.score === 'number' ? (
-                      <div className="mt-2 h-2 w-full overflow-hidden rounded-full border border-zinc-800 bg-zinc-950">
-                        <div
-                          className={
-                            'h-full rounded-full ' +
-                            (ats.score >= 80 ? 'bg-emerald-500' : ats.score >= 55 ? 'bg-amber-500' : 'bg-rose-500')
-                          }
-                          style={{ width: `${Math.max(0, Math.min(100, ats.score))}%` }}
-                        />
-                      </div>
-                    ) : null}
-                  </div>
+                      ))
+                    )}
+                  </select>
+                  <Button disabled={tailorBusy || !jobTargetId} onClick={() => void tailorToJob()}>
+                    {tailorBusy ? '…' : 'Tailor'}
+                  </Button>
+                  <ButtonLink to="/app/job-targets" variant="ghost">
+                    Targets
+                  </ButtonLink>
                 </div>
+              </Card>
 
-                {ats?.suggestionsJson ? (
-                  <div className="mt-3 grid gap-3">
-                    <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3 text-xs text-zinc-200">
-                      <div className="font-semibold text-zinc-100">Summary</div>
-                      <div className="mt-1 whitespace-pre-wrap text-zinc-200">{ats.suggestionsJson.summary ?? ''}</div>
+              {diff && diff.paths.length > 0 ? (
+                <Card className="p-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-white">Changes</p>
+                    <span className="text-xs text-zinc-600">
+                      v{compareVersion?.version} → v{selectedVersion.version}
+                    </span>
+                  </div>
+                  <ul className="mt-3 max-h-48 space-y-1 overflow-auto font-mono text-[11px] text-zinc-400">
+                    {diff.paths.map((p) => (
+                      <li key={p}>{p}</li>
+                    ))}
+                  </ul>
+                </Card>
+              ) : null}
+
+              <Card className="p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-sm font-medium text-white">ATS</p>
+                  <Button disabled={atsBusy || !jobTargetId} onClick={() => void evaluateAts()}>
+                    {atsBusy ? '…' : 'Score'}
+                  </Button>
+                </div>
+                {typeof ats?.score === 'number' ? (
+                  <div className="mt-4">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-semibold tabular-nums text-white">{ats.score}</span>
+                      <span className="text-xs capitalize text-zinc-500">{ats?.verdict ? String(ats.verdict) : ''}</span>
                     </div>
-                    <div className="grid gap-3 md:grid-cols-2">
-                      <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3 text-xs text-zinc-200">
-                        <div className="font-semibold text-zinc-100">Missing keywords</div>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {(ats.suggestionsJson.missingKeywords ?? []).slice(0, 24).map((k: string) => (
-                            <span key={k} className="rounded-full border border-zinc-800 bg-zinc-950 px-2 py-1 text-[11px] text-zinc-200">
-                              {k}
-                            </span>
-                          ))}
-                          {(ats.suggestionsJson.missingKeywords ?? []).length === 0 ? (
-                            <div className="text-[11px] text-zinc-400">None detected.</div>
-                          ) : null}
-                        </div>
-                      </div>
-                      <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3 text-xs text-zinc-200">
-                        <div className="font-semibold text-zinc-100">Recommendations</div>
-                        <ul className="mt-2 list-disc space-y-1 pl-5 text-[11px] text-zinc-200">
-                          {(ats.suggestionsJson.suggestions ?? []).slice(0, 12).map((s: string, idx: number) => (
-                            <li key={idx}>{s}</li>
-                          ))}
-                          {(ats.suggestionsJson.suggestions ?? []).length === 0 ? (
-                            <li className="text-zinc-400">No suggestions returned.</li>
-                          ) : null}
-                        </ul>
-                      </div>
+                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+                      <div
+                        className={
+                          'h-full rounded-full ' +
+                          (ats.score >= 80 ? 'bg-emerald-500' : ats.score >= 55 ? 'bg-amber-500' : 'bg-rose-500')
+                        }
+                        style={{ width: `${Math.max(0, Math.min(100, ats.score))}%` }}
+                      />
                     </div>
                   </div>
                 ) : null}
-              </div>
-            </div>
+                {ats?.suggestionsJson ? (
+                  <div className="mt-4 space-y-3 text-xs text-zinc-400">
+                    {ats.suggestionsJson.summary ? (
+                      <p className="leading-relaxed text-zinc-300">{ats.suggestionsJson.summary}</p>
+                    ) : null}
+                    {(ats.suggestionsJson.missingKeywords ?? []).length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {(ats.suggestionsJson.missingKeywords ?? []).slice(0, 16).map((k: string) => (
+                          <span key={k} className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] text-zinc-300">
+                            {k}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
+                    {(ats.suggestionsJson.suggestions ?? []).length > 0 ? (
+                      <ul className="list-inside list-disc space-y-1 text-zinc-400">
+                        {(ats.suggestionsJson.suggestions ?? []).slice(0, 8).map((s: string, idx: number) => (
+                          <li key={idx}>{s}</li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                ) : null}
+              </Card>
+            </>
           ) : (
-            <div className="mt-3 text-sm text-zinc-300">Select a version.</div>
+            <p className="text-sm text-zinc-500">Select a version.</p>
           )}
-        </section>
+        </div>
       </div>
     </div>
   )

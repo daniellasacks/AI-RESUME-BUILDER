@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import { useToasts } from '../components/toast'
 import { ResumePreview } from '../components/ResumePreview'
 import type { ResumeJson } from '../lib/resumeSchema'
+import { Alert, Button, ButtonLink, Card, PageHeader, Skeleton } from '../components/ui'
 
 type Template = {
   id: string
@@ -13,17 +14,36 @@ type Template = {
   templateJson?: { type?: string; sections?: string[] }
 }
 
+const sampleResume: ResumeJson = {
+  basics: {
+    fullName: 'Alex Morgan',
+    headline: 'Senior Engineer',
+    email: 'alex@email.com',
+    location: 'Remote',
+    summary: 'Full-stack engineer building SaaS products and APIs.',
+  },
+  experience: [
+    {
+      company: 'Acme Corp',
+      title: 'Senior Engineer',
+      startDate: '2022',
+      endDate: 'Present',
+      highlights: ['Led API migration', 'Shipped export pipeline'],
+    },
+  ],
+  skills: [{ category: 'Backend', items: ['Node.js', 'PostgreSQL'] }],
+  education: [{ school: 'State University', degree: 'B.S. CS' }],
+}
+
 export function TemplatesPage() {
   const toasts = useToasts()
   const [templates, setTemplates] = useState<Template[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [previewKey, setPreviewKey] = useState<string | null>(null)
-
   const [sp] = useSearchParams()
   const resumeId = sp.get('resumeId')
   const versionId = sp.get('versionId')
-
   const [resume, setResume] = useState<any | null>(null)
 
   const selectedVersion = useMemo(() => {
@@ -31,29 +51,7 @@ export function TemplatesPage() {
     return (resume.versions ?? []).find((v: any) => v.id === versionId) ?? null
   }, [resume, versionId])
 
-  const previewResume: ResumeJson | null = useMemo(() => {
-    if (selectedVersion?.structuredJson) return selectedVersion.structuredJson as ResumeJson
-    return {
-      basics: {
-        fullName: 'Alex Morgan',
-        headline: 'Senior Full Stack Engineer',
-        email: 'alex@email.com',
-        location: 'Remote',
-        summary: 'Full-stack engineer with experience building SaaS products, APIs, and AI-assisted workflows.',
-      },
-      experience: [
-        {
-          company: 'Acme Corp',
-          title: 'Senior Engineer',
-          startDate: '2022',
-          endDate: 'Present',
-          highlights: ['Led migration to NestJS + Prisma', 'Shipped ATS-friendly resume export pipeline'],
-        },
-      ],
-      skills: [{ category: 'Backend', items: ['Node.js', 'PostgreSQL', 'Prisma'] }],
-      education: [{ school: 'State University', degree: 'B.S. Computer Science' }],
-    }
-  }, [selectedVersion])
+  const previewResume: ResumeJson = (selectedVersion?.structuredJson as ResumeJson) ?? sampleResume
 
   useEffect(() => {
     api<Template[]>('/templates')
@@ -63,7 +61,7 @@ export function TemplatesPage() {
       })
       .catch((e) => {
         setTemplates([])
-        setError(e instanceof Error ? e.message : 'Failed to load templates')
+        setError(e instanceof Error ? e.message : 'Failed to load')
       })
   }, [])
 
@@ -81,11 +79,10 @@ export function TemplatesPage() {
 
   async function applyTemplate(t: Template) {
     if (!resumeId || !selectedVersion) {
-      toasts.info('Select a resume version', 'Open Templates from a resume detail page to apply a template.')
+      toasts.info('Open from a resume to apply')
       return
     }
     setBusy(true)
-    setError(null)
     try {
       await api('/resume/versions', {
         method: 'POST',
@@ -97,91 +94,88 @@ export function TemplatesPage() {
           jobTargetId: selectedVersion.jobTargetId ?? undefined,
         }),
       })
-      toasts.success('Template applied', `Created a new version using “${t.name}”.`)
+      toasts.success('New version created')
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Failed to apply template'
+      const msg = e instanceof Error ? e.message : 'Failed'
       setError(msg)
-      toasts.error('Apply failed', msg)
+      toasts.error('Failed', msg)
     } finally {
       setBusy(false)
     }
   }
 
   return (
-    <div className="grid gap-4">
-      <div>
-        <div className="text-lg font-semibold text-zinc-100">Templates</div>
-        <div className="text-sm text-zinc-400">Preview layouts and apply one to a resume version.</div>
-      </div>
-      {error ? <div className="rounded-2xl border border-rose-900 bg-rose-950/40 p-4 text-sm text-rose-200">{error}</div> : null}
+    <div className="space-y-6">
+      <PageHeader
+        title="Templates"
+        subtitle="Pick a layout for your resume."
+        action={
+          resumeId ? (
+            <ButtonLink to={`/app/resumes/${resumeId}`} variant="secondary">
+              Back
+            </ButtonLink>
+          ) : undefined
+        }
+      />
 
       {resumeId && versionId ? (
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-sm text-zinc-300">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <div className="text-sm font-semibold text-zinc-100">Applying to resume</div>
-              <div className="mt-1 text-xs text-zinc-400">
-                Resume: <span className="text-zinc-200">{resume?.title ?? resumeId}</span> • Version:{' '}
-                <span className="text-zinc-200">{selectedVersion ? `v${selectedVersion.version}` : versionId}</span>
-              </div>
-            </div>
-            <Link to={`/app/resumes/${resumeId}`} className="text-xs font-semibold text-violet-300 hover:text-violet-200">
-              Back to resume
-            </Link>
-          </div>
-        </div>
+        <Card className="px-4 py-3 text-sm text-zinc-400">
+          Applying to <span className="text-white">{resume?.title ?? 'resume'}</span>
+          {selectedVersion ? ` · v${selectedVersion.version}` : ''}
+        </Card>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
-        <div className="grid gap-3 md:grid-cols-2">
+      {error ? <Alert tone="error">{error}</Alert> : null}
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        <div className="grid gap-3 sm:grid-cols-2">
           {!templates ? (
-            Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-48 animate-pulse rounded-2xl border border-zinc-800 bg-zinc-950" />
-            ))
+            Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-40" />)
           ) : (
             templates.map((t) => (
               <div
                 key={t.id}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && setPreviewKey(t.key)}
+                onClick={() => setPreviewKey(t.key)}
                 className={
-                  'rounded-2xl border p-5 transition ' +
+                  'cursor-pointer rounded-2xl border p-4 transition ' +
                   (previewKey === t.key
-                    ? 'border-violet-500 bg-violet-500/5'
-                    : 'border-zinc-800 bg-zinc-950 hover:bg-zinc-900/40')
+                    ? 'border-indigo-500/30 bg-indigo-500/5'
+                    : 'border-white/[0.06] bg-white/[0.03] hover:border-white/10')
                 }
               >
-                <button type="button" onClick={() => setPreviewKey(t.key)} className="w-full text-left">
-                  <div className="text-sm font-semibold text-zinc-100">{t.name}</div>
-                  <div className="mt-1 text-xs text-zinc-400">{t.description ?? t.key}</div>
-                </button>
-                <div className="mt-3 scale-[0.85] origin-top-left">
-                  {previewResume ? (
-                    <ResumePreview resume={previewResume} template={t.templateJson ?? undefined} compact />
-                  ) : null}
+                <div className="font-medium text-white">{t.name}</div>
+                <p className="mt-0.5 line-clamp-1 text-xs text-zinc-500">{t.description ?? t.key}</p>
+                <div className="mt-3 origin-top-left scale-[0.75]">
+                  <ResumePreview resume={previewResume} template={t.templateJson ?? undefined} compact />
                 </div>
-                <div className="mt-4 flex items-center justify-between gap-2">
-                  <button
+                {resumeId && versionId ? (
+                  <Button
                     disabled={busy}
-                    onClick={() => void applyTemplate(t)}
-                    className="h-9 rounded-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 px-3 text-xs font-semibold text-white disabled:opacity-60"
+                    className="mt-3 w-full"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      void applyTemplate(t)
+                    }}
                   >
                     Use template
-                  </button>
-                  <div className="text-[11px] text-zinc-500">New version</div>
-                </div>
+                  </Button>
+                ) : null}
               </div>
             ))
           )}
         </div>
 
-        <aside className="sticky top-24 self-start rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-          <div className="text-sm font-semibold text-zinc-100">Large preview</div>
-          <div className="mt-1 text-xs text-zinc-400">{previewTemplate?.name ?? 'Select a template'}</div>
-          <div className="mt-3">
-            {previewResume && previewTemplate ? (
+        <Card className="sticky top-24 hidden p-4 lg:block">
+          <p className="text-sm font-medium text-white">{previewTemplate?.name ?? 'Preview'}</p>
+          <div className="mt-3 max-h-[70vh] overflow-auto">
+            {previewTemplate ? (
               <ResumePreview resume={previewResume} template={previewTemplate.templateJson ?? undefined} />
             ) : null}
           </div>
-        </aside>
+        </Card>
       </div>
     </div>
   )

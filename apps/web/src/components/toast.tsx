@@ -21,20 +21,20 @@ const Ctx = createContext<ToastApi | null>(null)
 function ToastItem({ t, onClose }: { t: Toast; onClose: () => void }) {
   const colors =
     t.kind === 'success'
-      ? 'border-emerald-900 bg-emerald-950/40 text-emerald-100'
+      ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-100'
       : t.kind === 'error'
-        ? 'border-rose-900 bg-rose-950/40 text-rose-100'
-        : 'border-zinc-800 bg-zinc-950 text-zinc-100'
+        ? 'border-rose-500/20 bg-rose-500/10 text-rose-100'
+        : 'border-white/10 bg-white/[0.06] text-zinc-200'
 
   return (
-    <div className={'rounded-2xl border p-3 shadow-xl backdrop-blur ' + colors}>
+    <div className={'rounded-xl border px-3 py-2.5 shadow-lg shadow-black/20 backdrop-blur-md ' + colors}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="text-sm font-semibold">{t.title}</div>
-          {t.message ? <div className="mt-0.5 text-xs opacity-90">{t.message}</div> : null}
+          <div className="text-sm font-medium">{t.title}</div>
+          {t.message ? <div className="mt-0.5 text-xs text-zinc-400">{t.message}</div> : null}
         </div>
-        <button onClick={onClose} className="rounded-lg border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-zinc-100 hover:bg-zinc-800">
-          Close
+        <button onClick={onClose} className="text-xs text-zinc-500 hover:text-white">
+          ×
         </button>
       </div>
     </div>

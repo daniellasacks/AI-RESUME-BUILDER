@@ -2,9 +2,9 @@ import type { Dispatch, ReactNode, SetStateAction } from 'react'
 import type { ResumeJson } from '../lib/resumeSchema'
 
 const input =
-  'h-10 w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 text-sm text-zinc-100 outline-none focus:border-violet-500'
+  'h-11 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-3.5 text-sm text-white outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20'
 const textarea =
-  'w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-violet-500'
+  'w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-3.5 py-2.5 text-sm text-white outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20'
 
 export function ResumeEditorForm({
   draft,
@@ -17,8 +17,8 @@ export function ResumeEditorForm({
 
   return (
     <div className="grid gap-6">
-      <section className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
-        <div className="text-sm font-semibold text-zinc-100">Basics</div>
+      <section className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5">
+        <div className="text-sm font-medium text-white">Basics</div>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <Field label="Full name">
             <input
@@ -94,7 +94,7 @@ export function ResumeEditorForm({
         }
       >
         {(draft.experience ?? []).map((exp, i) => (
-          <div key={i} className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+          <div key={i} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
             <div className="flex justify-end">
               <button
                 type="button"
@@ -171,7 +171,7 @@ export function ResumeEditorForm({
         }
       >
         {(draft.skills ?? []).map((sk, i) => (
-          <div key={i} className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+          <div key={i} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
             <div className="flex justify-end">
               <button
                 type="button"
@@ -218,7 +218,7 @@ export function ResumeEditorForm({
         }
       >
         {(draft.projects ?? []).map((p, i) => (
-          <div key={i} className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+          <div key={i} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
             <div className="flex justify-end">
               <button
                 type="button"
@@ -259,7 +259,7 @@ export function ResumeEditorForm({
         }
       >
         {(draft.education ?? []).map((ed, i) => (
-          <div key={i} className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+          <div key={i} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
             <div className="flex justify-end">
               <button
                 type="button"
@@ -299,7 +299,7 @@ export function ResumeEditorForm({
         }
       >
         {(draft.certifications ?? []).map((c, i) => (
-          <div key={i} className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+          <div key={i} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
             <div className="flex justify-end">
               <button
                 type="button"
@@ -367,13 +367,13 @@ function ListSection({
   emptyLabel: string
 }) {
   return (
-    <section className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
+    <section className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5">
       <div className="flex items-center justify-between gap-3">
         <div className="text-sm font-semibold text-zinc-100">{title}</div>
         <button
           type="button"
           onClick={onAdd}
-          className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-100 hover:bg-zinc-800"
+          className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-zinc-300 hover:bg-white/[0.08] hover:text-white"
         >
           {emptyLabel}
         </button>

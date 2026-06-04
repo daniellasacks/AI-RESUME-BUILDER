@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { api, DEMO_MODE } from '../lib/api'
 import { useAuth } from '../lib/auth'
+import { Alert, Brand, Button, Card, DemoPill, Field, Input } from '../components/ui'
 
 export function AuthPage() {
   const { user, setToken } = useAuth()
@@ -17,7 +18,7 @@ export function AuthPage() {
 
   useEffect(() => {
     if (!user) return
-    const from = (loc.state as any)?.from
+    const from = (loc.state as { from?: string } | null)?.from
     nav(typeof from === 'string' ? from : '/app/dashboard', { replace: true })
   }, [user, nav, loc.state])
 
@@ -39,108 +40,72 @@ export function AuthPage() {
   }
 
   return (
-    <div className="min-h-full">
-      <header className="border-b border-zinc-800 bg-zinc-950/60 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="grid size-10 place-items-center rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-sm font-semibold text-white">
-              CV
-            </div>
-            <div className="leading-tight">
-              <div className="text-sm font-semibold text-zinc-50">AI Resume SaaS</div>
-              <div className="text-xs text-zinc-400">Sign in to manage versions & exports</div>
-            </div>
+    <div className="flex min-h-full flex-col">
+      <header className="glass">
+        <div className="mx-auto flex h-16 max-w-lg items-center justify-between px-5">
+          <Link to="/">
+            <Brand />
           </Link>
-          <Link to="/" className="text-xs font-semibold text-zinc-300 hover:text-zinc-100">
-            Back to landing
-          </Link>
+          {DEMO_MODE ? <DemoPill /> : null}
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-6xl gap-8 px-4 py-10 lg:grid-cols-[1fr_420px]">
-        <section className="hidden lg:block">
-          <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-6">
-            <div className="text-sm font-semibold text-zinc-100">Why this is “production-style”</div>
-            <ul className="mt-4 space-y-2 text-sm text-zinc-300">
-              <li className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                <div className="font-semibold text-zinc-100">Clean API modules</div>
-                <div className="mt-1 text-xs text-zinc-400">NestJS + Prisma with consistent error handling.</div>
-              </li>
-              <li className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                <div className="font-semibold text-zinc-100">Versioned domain model</div>
-                <div className="mt-1 text-xs text-zinc-400">Immutable resume versions for auditability and diffs.</div>
-              </li>
-              <li className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                <div className="font-semibold text-zinc-100">Export pipeline</div>
-                <div className="mt-1 text-xs text-zinc-400">Server-side PDF/DOCX generation for real deliverables.</div>
-              </li>
-            </ul>
-          </div>
-        </section>
+      <main className="flex flex-1 items-center justify-center px-5 py-12">
+        <Card className="w-full max-w-md p-8">
+          <h1 className="text-xl font-semibold text-white">{mode === 'register' ? 'Create account' : 'Welcome back'}</h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            {mode === 'register' ? 'Start building your resume.' : 'Sign in to continue.'}
+          </p>
 
-        <section className="rounded-3xl border border-zinc-800 bg-zinc-950 p-6">
-          {DEMO_MODE ? (
-            <div className="mb-4 rounded-xl border border-amber-900/60 bg-amber-950/30 p-3 text-xs text-amber-100">
-              Live demo mode: create any account (password min 8 chars). Your data stays in this browser.
-            </div>
-          ) : null}
-          <div>
-            <div className="text-base font-semibold text-zinc-100">{mode === 'register' ? 'Create account' : 'Sign in'}</div>
-            <div className="mt-1 text-sm text-zinc-400">JWT auth + resume history + exports.</div>
-          </div>
-          <form onSubmit={onAuth} className="mt-5 grid gap-3">
+          <form onSubmit={onAuth} className="mt-8 grid gap-4">
             {mode === 'register' ? (
-              <label className="grid gap-1">
-                <span className="text-xs text-zinc-400">Full name (optional)</span>
-                <input
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="h-10 rounded-xl border border-zinc-800 bg-zinc-900 px-3 text-sm text-zinc-100 outline-none focus:border-violet-500"
-                  placeholder="Jane Doe"
-                />
-              </label>
+              <Field label="Name">
+                <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Jane Doe" />
+              </Field>
             ) : null}
-            <label className="grid gap-1">
-              <span className="text-xs text-zinc-400">Email</span>
-              <input
+            <Field label="Email">
+              <Input
+                type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-10 rounded-xl border border-zinc-800 bg-zinc-900 px-3 text-sm text-zinc-100 outline-none focus:border-violet-500"
                 placeholder="you@email.com"
+                autoComplete="email"
               />
-            </label>
-            <label className="grid gap-1">
-              <span className="text-xs text-zinc-400">Password</span>
-              <input
+            </Field>
+            <Field label="Password">
+              <Input
+                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                type="password"
-                className="h-10 rounded-xl border border-zinc-800 bg-zinc-900 px-3 text-sm text-zinc-100 outline-none focus:border-violet-500"
-                placeholder="min 8 characters"
+                placeholder="••••••••"
+                autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
               />
-            </label>
-            {error ? <div className="rounded-xl border border-rose-900 bg-rose-950/40 p-3 text-xs text-rose-200">{error}</div> : null}
-            <button
-              disabled={busy}
-              className="h-10 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 text-sm font-semibold text-white disabled:opacity-60"
-            >
-              {busy ? 'Working…' : mode === 'register' ? 'Create account' : 'Sign in'}
-            </button>
+            </Field>
+            {error ? <Alert tone="error">{error}</Alert> : null}
+            <Button type="submit" disabled={busy} className="w-full">
+              {busy ? '…' : mode === 'register' ? 'Create account' : 'Sign in'}
+            </Button>
           </form>
-          <div className="mt-4 text-xs text-zinc-400">
+
+          <p className="mt-6 text-center text-sm text-zinc-500">
             {mode === 'register' ? (
-              <button onClick={() => setMode('login')} className="text-violet-300 hover:text-violet-200">
-                Already have an account? Sign in
-              </button>
+              <>
+                Have an account?{' '}
+                <button type="button" onClick={() => setMode('login')} className="font-medium text-indigo-400 hover:text-indigo-300">
+                  Sign in
+                </button>
+              </>
             ) : (
-              <button onClick={() => setMode('register')} className="text-violet-300 hover:text-violet-200">
-                New here? Create an account
-              </button>
+              <>
+                New here?{' '}
+                <button type="button" onClick={() => setMode('register')} className="font-medium text-indigo-400 hover:text-indigo-300">
+                  Create account
+                </button>
+              </>
             )}
-          </div>
-        </section>
+          </p>
+        </Card>
       </main>
     </div>
   )
 }
-

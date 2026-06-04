@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import { ResumeSchema, type ResumeJson, emptyResume } from '../lib/resumeSchema'
 import { useToasts } from '../components/toast'
 import { ResumeEditorForm } from '../components/ResumeEditorForm'
 import { ResumePreview } from '../components/ResumePreview'
+import { Alert, Button, ButtonLink, Card, PageHeader, Skeleton } from '../components/ui'
 
 type ResumeVersion = {
   id: string
@@ -90,55 +91,37 @@ export function ResumeEditorPage() {
   }
 
   if (!draft) {
-    return <div className="h-40 animate-pulse rounded-2xl border border-zinc-800 bg-zinc-950" />
+    return <Skeleton className="h-40" />
   }
 
   return (
-    <div className="grid gap-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="min-w-0">
-          <div className="text-xs text-zinc-500">
-            <Link to={`/app/resumes/${resumeId}`} className="text-zinc-300 hover:text-zinc-100">
-              Resume
-            </Link>{' '}
-            <span className="text-zinc-700">/</span> <span>Edit</span>
+    <div className="space-y-6">
+      <PageHeader
+        title={data?.title ?? 'Edit'}
+        subtitle="Saves create a new version."
+        action={
+          <div className="flex gap-2">
+            <Button disabled={busy || !validation.ok} onClick={() => void saveNewVersion()}>
+              Save version
+            </Button>
+            <ButtonLink to={`/app/resumes/${resumeId}`} variant="secondary">
+              Cancel
+            </ButtonLink>
           </div>
-          <div className="mt-1 truncate text-lg font-semibold text-zinc-100">Structured resume editor</div>
-          <div className="mt-1 text-sm text-zinc-400">Every save creates a new immutable version.</div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <button
-            disabled={busy || !validation.ok}
-            onClick={() => void saveNewVersion()}
-            className="h-9 rounded-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 px-3 text-xs font-semibold text-white disabled:opacity-60"
-          >
-            Save new version
-          </button>
-          <Link
-            to={`/app/resumes/${resumeId}`}
-            className="h-9 rounded-lg border border-zinc-800 bg-zinc-900 px-3 text-xs font-semibold text-zinc-100 hover:bg-zinc-800 inline-flex items-center"
-          >
-            Cancel
-          </Link>
-        </div>
-      </div>
+        }
+      />
 
-      {!validation.ok ? (
-        <div className="rounded-2xl border border-amber-900 bg-amber-950/20 p-4 text-sm text-amber-100">
-          <div className="font-semibold">Validation</div>
-          <div className="mt-1 text-xs opacity-90">{validation.message}</div>
-        </div>
-      ) : null}
-      {error ? <div className="rounded-2xl border border-rose-900 bg-rose-950/40 p-4 text-sm text-rose-200">{error}</div> : null}
+      {!validation.ok ? <Alert tone="info">{validation.message}</Alert> : null}
+      {error ? <Alert tone="error">{error}</Alert> : null}
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_360px]">
+      <div className="grid gap-6 xl:grid-cols-[1fr_340px]">
         <ResumeEditorForm draft={draft} setDraft={setDraft} />
-        <aside className="sticky top-24 self-start">
-          <div className="text-xs font-semibold text-zinc-400">Live preview</div>
-          <div className="mt-2">
+        <Card className="sticky top-24 hidden p-4 xl:block">
+          <p className="text-xs font-medium text-zinc-500">Preview</p>
+          <div className="mt-3 max-h-[75vh] overflow-auto">
             <ResumePreview resume={draft} />
           </div>
-        </aside>
+        </Card>
       </div>
     </div>
   )
