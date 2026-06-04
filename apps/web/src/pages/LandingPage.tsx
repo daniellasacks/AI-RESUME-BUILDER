@@ -1,104 +1,108 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
-import { Brand, ButtonLink, Card } from '../components/ui'
+import { landingPreviewResume } from '../lib/sampleResume'
+import { ResumePreview } from '../components/ResumePreview'
+import { IconArrowRight, IconCheck } from '../components/icons'
+import { Badge, Brand, Button, ButtonLink, Card } from '../components/ui'
 
-const features = [
-  { icon: '◇', title: 'Version history', desc: 'Every edit saved' },
-  { icon: '◎', title: 'Job tailoring', desc: 'Per role & company' },
-  { icon: '◆', title: 'ATS score', desc: 'Keywords & tips' },
-  { icon: '▣', title: 'Export', desc: 'PDF & DOCX' },
-]
+const perks = ['Version history', 'Job tailoring', 'ATS scoring', 'PDF & DOCX']
 
 export function LandingPage() {
   const { user } = useAuth()
   const nav = useNavigate()
 
   return (
-    <div className="min-h-full">
-      <header className="glass sticky top-0 z-50">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
+    <div className="mesh-bg min-h-full">
+      <header className="glass-nav sticky top-0 z-50">
+        <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-6">
           <Brand />
           {user ? (
-            <button
-              onClick={() => nav('/app/dashboard')}
-              className="rounded-xl bg-indigo-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-400"
-            >
+            <Button onClick={() => nav('/app/dashboard')}>
               Open app
-            </button>
+              <IconArrowRight size={16} className="opacity-70" />
+            </Button>
           ) : (
             <ButtonLink to="/auth">Get started</ButtonLink>
           )}
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-5 pb-20 pt-16 lg:pt-24">
-        <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-10">
-          <div>
-            <p className="text-sm font-medium text-indigo-400">AI-powered resume workspace</p>
-            <h1 className="mt-4 text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
-              <span className="text-gradient">Resumes that land interviews.</span>
-            </h1>
-            <p className="mt-5 max-w-md text-base leading-relaxed text-zinc-500">
-              Upload, tailor to any job, track versions, and export — in one place.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <ButtonLink to="/auth">Start free</ButtonLink>
-              <a
-                href="https://github.com/daniellasacks/AI-RESUME-BUILDER"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-zinc-300 hover:bg-white/[0.05]"
-              >
-                GitHub
-              </a>
-            </div>
-            <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {features.map((f) => (
-                <div key={f.title} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
-                  <div className="text-lg text-indigo-400/80">{f.icon}</div>
-                  <div className="mt-2 text-xs font-semibold text-zinc-200">{f.title}</div>
-                  <div className="text-[11px] text-zinc-600">{f.desc}</div>
-                </div>
-              ))}
-            </div>
+      <main className="relative mx-auto max-w-6xl px-6 pb-24 pt-12 lg:pt-20">
+        <div className="mx-auto max-w-3xl text-center lg:mx-0 lg:text-left">
+          <Badge>AI resume workspace</Badge>
+          <h1 className="mt-6 text-[2.75rem] font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-[3.5rem]">
+            <span className="text-gradient">Craft resumes</span>
+            <br />
+            <span className="text-white">that get noticed.</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-lg text-lg leading-relaxed text-zinc-500 lg:mx-0">
+            Tailor to any role, track every version, and export in seconds.
+          </p>
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+            <ButtonLink to="/auth" className="min-w-[160px]">
+              Start free
+            </ButtonLink>
+            <a
+              href="https://github.com/daniellasacks/AI-RESUME-BUILDER"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="surface inline-flex min-w-[160px] items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold text-zinc-300 transition hover:border-white/20 hover:text-white"
+            >
+              View source
+            </a>
           </div>
+          <ul className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 lg:justify-start">
+            {perks.map((p) => (
+              <li key={p} className="flex items-center gap-2 text-sm text-zinc-400">
+                <IconCheck size={16} className="text-sky-400" />
+                {p}
+              </li>
+            ))}
+          </ul>
+        </div>
 
-          <Card className="relative overflow-hidden p-1 shadow-2xl shadow-indigo-500/10">
-            <div className="rounded-[14px] bg-[#0c0c0e] p-5">
-              <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
-                <div className="flex gap-1.5">
-                  <span className="size-2.5 rounded-full bg-zinc-700" />
-                  <span className="size-2.5 rounded-full bg-zinc-700" />
-                  <span className="size-2.5 rounded-full bg-zinc-700" />
+        <div className="relative mt-16 lg:mt-20">
+          <div className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[420px] w-[min(100%,720px)] -translate-x-1/2 -translate-y-1/3 rounded-full bg-sky-500/20 blur-[100px]" />
+
+          <Card elevated className="mx-auto max-w-4xl overflow-hidden p-2 accent-glow">
+            <div className="flex items-center gap-2 border-b border-white/[0.06] px-4 py-3">
+              <span className="size-3 rounded-full bg-zinc-600" />
+              <span className="size-3 rounded-full bg-zinc-600" />
+              <span className="size-3 rounded-full bg-zinc-600" />
+              <span className="ml-3 flex-1 rounded-md bg-zinc-800/80 py-1.5 text-center text-[11px] text-zinc-500">
+                app.resumely — Jordan Lee · v3
+              </span>
+            </div>
+
+            <div className="grid gap-0 lg:grid-cols-[1fr_280px]">
+              <div className="border-b border-white/[0.06] p-4 lg:border-b-0 lg:border-r">
+                <div className="origin-top scale-[0.92] sm:scale-100">
+                  <ResumePreview resume={landingPreviewResume} />
                 </div>
-                <span className="text-[10px] text-zinc-600">v3 · Tailored</span>
               </div>
-              <div className="mt-5 space-y-4">
-                <div>
-                  <div className="h-3 w-32 rounded bg-white/10" />
-                  <div className="mt-2 h-2 w-48 rounded bg-white/[0.06]" />
-                </div>
-                <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
-                  <div className="text-[10px] font-medium uppercase tracking-wider text-zinc-600">ATS score</div>
-                  <div className="mt-2 flex items-end gap-2">
-                    <span className="text-3xl font-semibold text-emerald-400">84</span>
-                    <span className="mb-1 text-xs text-zinc-500">Strong match</span>
+
+              <div className="flex flex-col gap-3 p-4">
+                <div className="surface rounded-xl p-4">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">ATS match</div>
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <span className="text-4xl font-bold text-sky-400">87</span>
+                    <span className="text-xs font-medium text-emerald-400">Strong</span>
                   </div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-800">
-                    <div className="h-full w-[84%] rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400" />
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-zinc-800">
+                    <div className="h-full w-[87%] rounded-full bg-gradient-to-r from-sky-500 to-emerald-400" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="rounded-lg bg-indigo-500/10 px-3 py-2 text-center text-[11px] font-medium text-indigo-300">
-                    PDF
-                  </div>
-                  <div className="rounded-lg border border-white/[0.08] px-3 py-2 text-center text-[11px] text-zinc-500">
-                    DOCX
-                  </div>
+                  <div className="rounded-xl bg-sky-500/15 py-3 text-center text-xs font-bold text-sky-200">PDF</div>
+                  <div className="surface rounded-xl py-3 text-center text-xs font-semibold text-zinc-500">DOCX</div>
+                </div>
+                <div className="surface flex-1 rounded-xl p-3">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Tailored for</div>
+                  <p className="mt-2 text-sm font-semibold text-white">Senior Product Engineer</p>
+                  <p className="text-xs text-zinc-500">Northwind · Remote</p>
                 </div>
               </div>
             </div>
-            <div className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-indigo-500/20 blur-3xl" />
           </Card>
         </div>
       </main>

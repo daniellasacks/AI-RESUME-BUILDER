@@ -2,9 +2,9 @@ import type { Dispatch, ReactNode, SetStateAction } from 'react'
 import type { ResumeJson } from '../lib/resumeSchema'
 
 const input =
-  'h-11 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-3.5 text-sm text-white outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20'
+  'h-11 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-3.5 text-sm text-white outline-none focus:border-sky-500/50 focus:ring-2 focus:ring-sky-500/15'
 const textarea =
-  'w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-3.5 py-2.5 text-sm text-white outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20'
+  'w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-3.5 py-2.5 text-sm text-white outline-none focus:border-sky-500/50 focus:ring-2 focus:ring-sky-500/15'
 
 export function ResumeEditorForm({
   draft,

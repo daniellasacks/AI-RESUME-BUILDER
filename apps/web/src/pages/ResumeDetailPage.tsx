@@ -7,7 +7,7 @@ import type { ResumeJson } from '../lib/resumeSchema'
 import { Alert, Button, ButtonLink, Card } from '../components/ui'
 
 const selectCls =
-  'h-10 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 text-sm text-white outline-none focus:border-indigo-500/50'
+  'h-10 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 text-sm text-white outline-none focus:border-sky-500/50'
 
 type ResumeVersion = {
   id: string
@@ -175,7 +175,7 @@ export function ResumeDetailPage() {
                   className={
                     'w-full rounded-xl border px-3 py-2.5 text-left transition ' +
                     (v.id === selected
-                      ? 'border-indigo-500/40 bg-indigo-500/10'
+                      ? 'border-sky-500/40 bg-sky-500/10'
                       : 'border-white/[0.06] bg-transparent hover:bg-white/[0.03]')
                   }
                 >
@@ -184,7 +184,7 @@ export function ResumeDetailPage() {
                     <div className="text-xs text-zinc-600">{new Date(v.createdAt).toLocaleDateString()}</div>
                   </div>
                   {v.jobTargetId ? (
-                    <div className="mt-1 text-[10px] uppercase tracking-wider text-indigo-400/80">Tailored</div>
+                    <div className="mt-1 text-[10px] uppercase tracking-wider text-sky-400/80">Tailored</div>
                   ) : null}
                 </button>
               ))

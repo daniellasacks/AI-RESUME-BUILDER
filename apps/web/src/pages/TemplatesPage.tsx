@@ -142,7 +142,7 @@ export function TemplatesPage() {
                 className={
                   'cursor-pointer rounded-2xl border p-4 transition ' +
                   (previewKey === t.key
-                    ? 'border-indigo-500/30 bg-indigo-500/5'
+                    ? 'border-sky-500/30 bg-sky-500/5'
                     : 'border-white/[0.06] bg-white/[0.03] hover:border-white/10')
                 }
               >

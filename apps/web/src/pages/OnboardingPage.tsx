@@ -104,7 +104,7 @@ export function OnboardingPage() {
                 <span
                   className={
                     'grid size-8 place-items-center rounded-full text-xs font-semibold ' +
-                    (s.done ? 'bg-emerald-500/20 text-emerald-300' : 'bg-white/[0.06] text-zinc-400')
+                    (s.done ? 'bg-sky-500/20 text-sky-300' : 'bg-white/[0.06] text-zinc-400')
                   }
                 >
                   {s.done ? '✓' : s.n}
@@ -119,7 +119,7 @@ export function OnboardingPage() {
       </div>
 
       {state.done ? (
-        <Card className="border-emerald-500/20 bg-emerald-500/5 p-4 text-center text-sm text-emerald-200">
+        <Card elevated className="border-sky-500/20 p-4 text-center text-sm text-sky-200">
           You&apos;re ready.{' '}
           <Link to="/app/resumes" className="underline hover:text-white">
             View resumes

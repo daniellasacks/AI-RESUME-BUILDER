@@ -40,9 +40,9 @@ export function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-full flex-col">
-      <header className="glass">
-        <div className="mx-auto flex h-16 max-w-lg items-center justify-between px-5">
+    <div className="mesh-bg flex min-h-full flex-col">
+      <header className="glass-nav">
+        <div className="mx-auto flex h-[72px] max-w-lg items-center justify-between px-6">
           <Link to="/">
             <Brand />
           </Link>
@@ -50,14 +50,14 @@ export function AuthPage() {
         </div>
       </header>
 
-      <main className="flex flex-1 items-center justify-center px-5 py-12">
-        <Card className="w-full max-w-md p-8">
-          <h1 className="text-xl font-semibold text-white">{mode === 'register' ? 'Create account' : 'Welcome back'}</h1>
-          <p className="mt-1 text-sm text-zinc-500">
-            {mode === 'register' ? 'Start building your resume.' : 'Sign in to continue.'}
-          </p>
+      <main className="relative flex flex-1 items-center justify-center px-6 py-16">
+        <div className="pointer-events-none absolute left-1/2 top-1/3 h-64 w-64 -translate-x-1/2 rounded-full bg-sky-500/25 blur-[80px]" />
+        <Card elevated className="relative w-full max-w-[420px] p-8 sm:p-10">
+          <h1 className="text-2xl font-bold tracking-tight text-white">
+            {mode === 'register' ? 'Create account' : 'Welcome back'}
+          </h1>
 
-          <form onSubmit={onAuth} className="mt-8 grid gap-4">
+          <form onSubmit={onAuth} className="mt-8 grid gap-5">
             {mode === 'register' ? (
               <Field label="Name">
                 <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Jane Doe" />
@@ -87,18 +87,18 @@ export function AuthPage() {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-zinc-500">
+          <p className="mt-8 text-center text-sm text-zinc-500">
             {mode === 'register' ? (
               <>
                 Have an account?{' '}
-                <button type="button" onClick={() => setMode('login')} className="font-medium text-indigo-400 hover:text-indigo-300">
+                <button type="button" onClick={() => setMode('login')} className="font-semibold text-sky-400 hover:text-sky-300">
                   Sign in
                 </button>
               </>
             ) : (
               <>
                 New here?{' '}
-                <button type="button" onClick={() => setMode('register')} className="font-medium text-indigo-400 hover:text-indigo-300">
+                <button type="button" onClick={() => setMode('register')} className="font-semibold text-sky-400 hover:text-sky-300">
                   Create account
                 </button>
               </>

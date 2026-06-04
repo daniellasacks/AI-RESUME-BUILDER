@@ -24,7 +24,7 @@ function ToastItem({ t, onClose }: { t: Toast; onClose: () => void }) {
       ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-100'
       : t.kind === 'error'
         ? 'border-rose-500/20 bg-rose-500/10 text-rose-100'
-        : 'border-white/10 bg-white/[0.06] text-zinc-200'
+        : 'border-sky-500/20 bg-sky-500/10 text-sky-100'
 
   return (
     <div className={'rounded-xl border px-3 py-2.5 shadow-lg shadow-black/20 backdrop-blur-md ' + colors}>
