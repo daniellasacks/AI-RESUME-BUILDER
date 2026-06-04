@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ConversationRole {
+  system
+  user
+  assistant
+  tool
+}
+
+enum ResumeStatus {
+  draft
+  published
+  archived
+}
+
+enum DocumentKind {
+  resume
+  job_description
+  other
+}
+
+enum AtsVerdict {
+  weak
+  ok
+  strong
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  fullName     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resumes       Resume[]
+  conversations ConversationSession[]
+  uploads       UploadedDocument[]
+  jobTargets    JobTarget[]
+  coverLetters  CoverLetter[]
+  atsEvaluations AtsEvaluation[]
+  templates     ResumeTemplate[] @relation("UserTemplates")
+}
+
+model Resume {
+  id        String      @id @default(cuid())
+  userId    String
+  title     String
+  status    ResumeStatus @default(draft)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions ResumeVersion[]
+  conversations ConversationSession[]
+
+  sourceDocuments ResumeSourceDocument[]
+}
+
+model ResumeVersion {
+  id        String   @id @default(cuid())
+  resumeId  String
+  version   Int
+
+  // “source of truth” structured resume data used for rendering/templates
+  structuredJson Json
+
+  // optional: a text snapshot used for diffing/searching
+  plainText String?
+
+  // Tailoring metadata
+  jobTargetId String?
+  templateId  String?
+  derivedFromVersionId String?
+
+  createdAt DateTime @default(now())
+
+  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  jobTarget JobTarget? @relation(fields: [jobTargetId], references: [id], onDelete: SetNull)
+  template  ResumeTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  derivedFrom ResumeVersion? @relation("DerivedVersions", fields: [derivedFromVersionId], references: [id], onDelete: SetNull)
+  derivedTo   ResumeVersion[] @relation("DerivedVersions")
+
+  atsEvaluations AtsEvaluation[]
+  coverLetters   CoverLetter[]
+
+  @@unique([resumeId, version])
+  @@index([resumeId, createdAt])
+}
+
+model ConversationSession {
+  id        String   @id @default(cuid())
+  userId    String
+  resumeId  String?
+  title     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resume   Resume?              @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  messages ConversationMessage[]
+}
+
+model ConversationMessage {
+  id          String           @id @default(cuid())
+  sessionId   String
+  role        ConversationRole
+  content     String
+  createdAt   DateTime         @default(now())
+
+  session ConversationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}
+
+model UploadedDocument {
+  id        String   @id @default(cuid())
+  userId    String
+  kind      DocumentKind @default(other)
+  filename  String
+  mimeType  String
+  sizeBytes Int
+  storageKey String // local path or S3 key later
+
+  extractedText String?
+  extractedJson Json?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  resumeLinks ResumeSourceDocument[]
+  jobTargetLinks JobTargetDocument[]
+}
+
+model ResumeSourceDocument {
+  id         String @id @default(cuid())
+  resumeId   String
+  documentId String
+
+  createdAt DateTime @default(now())
+
+  resume   Resume           @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  document UploadedDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([resumeId, documentId])
+}
+
+model JobTarget {
+  id        String @id @default(cuid())
+  userId    String
+  title     String // e.g. "Senior Full Stack Developer"
+  company   String?
+  industry  String?
+  location  String?
+
+  // The raw job description text (or pasted JD)
+  jobDescriptionText String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents JobTargetDocument[]
+  resumeVersions ResumeVersion[]
+  coverLetters  CoverLetter[]
+  atsEvaluations AtsEvaluation[]
+
+  @@index([userId, createdAt])
+}
+
+model JobTargetDocument {
+  id         String @id @default(cuid())
+  jobTargetId String
+  documentId String
+  createdAt DateTime @default(now())
+
+  jobTarget JobTarget @relation(fields: [jobTargetId], references: [id], onDelete: Cascade)
+  document  UploadedDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([jobTargetId, documentId])
+}
+
+model ResumeTemplate {
+  id          String @id @default(cuid())
+  key         String @unique // stable identifier (e.g. "modern-1")
+  name        String
+  description String?
+
+  // JSON schema for rendering in web + export pipelines
+  templateJson Json
+
+  createdByUserId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  versions ResumeVersion[]
+  createdByUser User? @relation("UserTemplates", fields: [createdByUserId], references: [id], onDelete: SetNull)
+}
+
+model CoverLetter {
+  id          String @id @default(cuid())
+  userId      String
+  resumeVersionId String?
+  jobTargetId String?
+  content     String
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeVersion ResumeVersion? @relation(fields: [resumeVersionId], references: [id], onDelete: SetNull)
+  jobTarget JobTarget? @relation(fields: [jobTargetId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+}
+
+model AtsEvaluation {
+  id          String @id @default(cuid())
+  userId      String
+  resumeVersionId String?
+  jobTargetId String?
+
+  // 0-100
+  score Int
+  verdict AtsVerdict
+  suggestionsJson Json
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeVersion ResumeVersion? @relation(fields: [resumeVersionId], references: [id], onDelete: SetNull)
+  jobTarget JobTarget? @relation(fields: [jobTargetId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+}
+

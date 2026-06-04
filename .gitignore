@@ -1,0 +1,29 @@
+.DS_Store
+
+# env
+.env
+apps/**/.env
+
+# node
+node_modules
+**/node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# build
+dist
+**/dist
+build
+**/build
+.turbo
+
+# vite
+apps/web/.vite
+
+# prisma
+apps/api/prisma/dev.db
+apps/api/prisma/dev.db-journal
+
+node_modules
