@@ -67,7 +67,7 @@ export function LandingPage() {
               Create an account
             </Link>
             <a
-              href="https://github.com/daniellasacks/ai-resume-saas"
+              href="https://github.com/daniellasacks/AI-RESUME-BUILDER"
               className="h-10 rounded-xl border border-zinc-800 bg-zinc-950 px-4 text-sm font-semibold text-zinc-100 hover:bg-zinc-900 inline-flex items-center"
             >
               View on GitHub

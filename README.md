@@ -1,6 +1,6 @@
 # AI Resume SaaS (Portfolio Project)
 
-[![GitHub](https://img.shields.io/badge/GitHub-daniellasacks%2Fai--resume--saas-181717?logo=github)](https://github.com/daniellasacks/ai-resume-saas)
+[![GitHub](https://img.shields.io/badge/GitHub-daniellasacks%2FAI--RESUME--BUILDER-181717?logo=github)](https://github.com/daniellasacks/AI-RESUME-BUILDER)
 
 Production-style, AI-powered resume builder you can demo in technical interviews: **auth**, **structured resume JSON**, **immutable version history**, **job targets**, **ATS scoring + recommendations**, **template selection**, and **PDF/DOCX export**.
 
