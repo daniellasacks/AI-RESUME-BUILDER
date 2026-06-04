@@ -2,6 +2,8 @@
 
 React + TypeScript + Vite + Tailwind frontend for the AI Resume SaaS.
 
+**Author:** Daniella Azar
+
 ## Pages
 
 - `GET /` Landing page (portfolio-friendly)

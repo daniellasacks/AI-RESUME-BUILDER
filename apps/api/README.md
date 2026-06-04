@@ -2,6 +2,8 @@
 
 NestJS + Prisma + PostgreSQL backend for the AI Resume SaaS.
 
+**Author:** Daniella Azar
+
 ## Core modules & routes
 
 - **Auth**

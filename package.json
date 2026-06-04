@@ -1,5 +1,6 @@
 {
   "name": "ai-resume-generator",
+  "author": "Daniella Azar",
   "private": true,
   "workspaces": [
     "apps/*",

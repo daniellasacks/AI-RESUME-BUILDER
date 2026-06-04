@@ -106,6 +106,18 @@ export function LandingPage() {
           </Card>
         </div>
       </main>
+
+      <footer className="border-t border-white/[0.06] py-8 text-center text-sm text-zinc-600">
+        Portfolio project by{' '}
+        <a
+          href="https://daniellasacks.github.io/portfolio/"
+          className="font-medium text-zinc-400 hover:text-sky-400"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Daniella Azar
+        </a>
+      </footer>
     </div>
   )
 }

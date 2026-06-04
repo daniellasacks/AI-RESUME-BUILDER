@@ -37,7 +37,7 @@ export function OnboardingPage() {
       const created = await api<{ id: string }>('/resume', { method: 'POST', body: JSON.stringify({ title: 'My Resume' }) })
       await api('/resume/versions', {
         method: 'POST',
-        body: JSON.stringify({ resumeId: created.id, structuredJson: emptyResume('Your Name') }),
+        body: JSON.stringify({ resumeId: created.id, structuredJson: emptyResume('Daniella Azar') }),
       })
       toasts.success('Resume created')
       await refresh()
