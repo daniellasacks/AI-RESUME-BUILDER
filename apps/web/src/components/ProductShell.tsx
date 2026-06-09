@@ -3,30 +3,38 @@ import { DEMO_MODE } from '../lib/api'
 import { PRODUCT_NAME } from '../lib/brand'
 import { ErrorBoundary } from './ErrorBoundary'
 
-/** Full-screen app chrome — not a marketing layout */
 export function ProductShell() {
   return (
-    <div className="flex h-full flex-col bg-white">
-      <header className="flex h-11 shrink-0 items-center justify-between border-b border-slate-200 px-4">
-        <div className="flex items-center gap-2">
-          <div className="flex size-7 items-center justify-center rounded-md bg-slate-900 text-[9px] font-bold text-white">
-            CV
+    <div className="app-canvas flex h-full flex-col">
+      <header className="relative z-10 flex h-14 shrink-0 items-center justify-between px-5">
+        <div className="flex items-center gap-3">
+          <div className="relative flex size-9 items-center justify-center">
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-indigo-500 via-violet-500 to-pink-500 opacity-80 blur-sm" />
+            <div className="relative flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-violet-500 to-pink-500 text-xs font-black text-white">
+              AI
+            </div>
           </div>
-          <span className="text-sm font-medium text-slate-800">{PRODUCT_NAME}</span>
-          {DEMO_MODE ? (
-            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] text-slate-500">demo</span>
-          ) : null}
+          <div>
+            <p className="text-sm font-semibold leading-none text-white">{PRODUCT_NAME}</p>
+            {DEMO_MODE ? <p className="mt-0.5 text-[10px] text-zinc-500">live demo</p> : null}
+          </div>
         </div>
-        <div className="flex items-center gap-4 text-xs">
-          <Link to="/app/resumes" className="text-slate-500 hover:text-slate-900">
-            Saved CVs
+        <nav className="flex items-center gap-2">
+          <Link
+            to="/app/resumes"
+            className="glass rounded-full px-4 py-1.5 text-xs font-medium text-zinc-300 transition hover:text-white"
+          >
+            My CVs
           </Link>
-          <Link to="/auth" className="text-slate-500 hover:text-slate-900">
+          <Link
+            to="/auth"
+            className="rounded-full bg-white/10 px-4 py-1.5 text-xs font-medium text-white transition hover:bg-white/15"
+          >
             Account
           </Link>
-        </div>
+        </nav>
       </header>
-      <main className="min-h-0 flex-1">
+      <main className="relative z-10 min-h-0 flex-1 px-3 pb-3 md:px-4 md:pb-4">
         <ErrorBoundary>
           <Outlet />
         </ErrorBoundary>
