@@ -9,14 +9,18 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  deploy-docs:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
@@ -31,18 +35,36 @@ jobs:
           GITHUB_PAGES: 'true'
           VITE_DEMO_MODE: 'true'
 
-      - name: Publish to docs folder
+      - name: SPA fallback
+        run: |
+          cp apps/web/dist/index.html apps/web/dist/404.html
+          touch apps/web/dist/.nojekyll
+
+      - name: Sync docs folder (branch deploy fallback)
         run: |
           rm -rf docs/*
           cp -r apps/web/dist/* docs/
           cp apps/web/dist/index.html docs/404.html
           touch docs/.nojekyll
 
-      - name: Push docs to main
+      - name: Commit docs
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/
-          git diff --staged --quiet && echo "No changes" && exit 0
-          git commit -m "Deploy web app to docs [skip ci]"
-          git push
+          git diff --staged --quiet || git commit -m "Deploy web app to docs [skip ci]"
+          git push || true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
