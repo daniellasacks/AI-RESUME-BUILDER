@@ -1,77 +1,125 @@
-/** Simple, friendly interview — 8 easy steps */
-export const CHAT_FLOW = [
+export type ChatStep = {
+  id: string
+  question: string
+  hints: string[]
+  multiline?: boolean
+  optional?: boolean
+}
+
+/** Full interview for people starting without a CV */
+export const FRESH_FLOW: ChatStep[] = [
   {
     id: 'fullName',
-    question: "Hey! 👋 I'm your CV coach. What's your name?",
-    hints: [] as string[],
+    question: 'Welcome. Let\'s build your CV together. What is your full name?',
+    hints: [],
   },
   {
     id: 'headline',
-    question: 'Great! What do you do professionally?',
-    hints: ['HR Manager', 'Software Engineer', 'Product Designer', 'Marketing Lead'],
+    question: 'What is your professional title or the field you work in?',
+    hints: ['Software Engineer', 'HR Manager', 'Product Designer', 'Career changer'],
   },
   {
     id: 'contact',
-    question: 'How can employers reach you?',
-    hints: ['you@email.com', '054-123-4567'],
+    question: 'How should employers contact you? Share your email and phone.',
+    hints: ['name@email.com', '+1 555 123 4567'],
   },
   {
     id: 'currentRole',
-    question: 'Tell me about your current (or most recent) job — company, title, and what you do there.',
-    hints: ['CallMarker · HR Manager · since 2019', 'Led team of 5, managed budget…'],
+    question: 'Describe your current or most recent role — company, job title, and main responsibilities.',
+    hints: ['Acme Corp · Analyst · 2022–present', 'Led a team of 4, owned reporting…'],
     multiline: true,
   },
   {
     id: 'previousRoles',
-    question: 'Any previous jobs worth adding? Share them briefly — or skip.',
+    question: 'List any earlier roles worth including. You can skip this if you prefer.',
     hints: ['Skip'],
     multiline: true,
     optional: true,
   },
   {
     id: 'skills',
-    question: 'What tools and skills do you work with?',
-    hints: ['Excel, Workday', 'React, TypeScript', 'Monday, Notion'],
+    question: 'What skills, tools, or technologies should appear on your CV?',
+    hints: ['Excel, SQL, project management', 'React, TypeScript, Node.js'],
     multiline: true,
   },
   {
     id: 'education',
-    question: 'Your education or certifications?',
-    hints: ['University — B.A. Psychology', 'John Bryce — Digital Marketing'],
+    question: 'Share your education, training, or relevant certifications.',
+    hints: ['B.A. Psychology — Tel Aviv University', 'Google UX Certificate'],
     multiline: true,
   },
   {
     id: 'targetJob',
-    question: 'Last one — what role are you aiming for next?',
-    hints: ['Senior HR Manager', 'Full Stack Developer', 'Team Lead'],
+    question: 'What role or type of job are you targeting next?',
+    hints: ['Junior Developer', 'HR Business Partner', 'Team Lead'],
   },
-] as const
+]
 
-export type ChatStepId = (typeof CHAT_FLOW)[number]['id']
+/** Shorter path when the user uploads an existing CV */
+export const UPDATE_FLOW: ChatStep[] = [
+  {
+    id: 'updateGoals',
+    question: 'I have your CV on file. What would you like to update or improve?',
+    hints: ['Refresh the summary', 'Add my latest role', 'Make it shorter', 'Tailor for a new field'],
+    multiline: true,
+  },
+  {
+    id: 'addDetails',
+    question: 'Is there anything new to add — a recent project, skill, or achievement?',
+    hints: ['Skip', 'Built a portfolio project in React', 'Completed a bootcamp in 2024'],
+    multiline: true,
+    optional: true,
+  },
+  {
+    id: 'targetJob',
+    question: 'What role are you applying for? This helps tailor the final CV.',
+    hints: ['Full Stack Developer', 'People Operations Manager'],
+  },
+]
 
-export const TOTAL_STEPS = CHAT_FLOW.length
+export type ChatStepId = string
 
-export function acknowledgment(stepId: ChatStepId, value: string): string {
+export function getFlow(mode: 'fresh' | 'update'): ChatStep[] {
+  return mode === 'update' ? UPDATE_FLOW : FRESH_FLOW
+}
+
+export function totalSteps(mode: 'fresh' | 'update'): number {
+  return getFlow(mode).length
+}
+
+export function acknowledgment(stepId: string, value: string, mode: 'fresh' | 'update'): string {
   const first = value.trim().split(/\s+/)[0] ?? ''
+  if (mode === 'update') {
+    switch (stepId) {
+      case 'updateGoals':
+        return 'Understood. I will focus on those changes.'
+      case 'addDetails':
+        return isSkip(value) ? 'No problem.' : 'Added — I will weave that in.'
+      case 'targetJob':
+        return 'Great. I have what I need to refine your CV.'
+      default:
+        return 'Thank you.'
+    }
+  }
   switch (stepId) {
     case 'fullName':
-      return first ? `Lovely to meet you, ${first}! ✨` : 'Thanks!'
+      return first ? `Good to meet you, ${first}.` : 'Thank you.'
     case 'headline':
-      return 'Perfect.'
+      return 'Noted.'
     case 'contact':
-      return 'Got it.'
+      return 'Contact details saved.'
     case 'currentRole':
-      return 'Nice — adding that to your CV.'
+      return 'I have added that experience.'
     case 'previousRoles':
-      return isSkip(value) ? 'No worries.' : 'Great — your full career history is coming together.'
+      return isSkip(value) ? 'Skipped.' : 'Previous roles added.'
     case 'skills':
-      return 'Skills noted.'
+      return 'Skills recorded.'
     case 'education':
       return 'Education added.'
     case 'targetJob':
-      return "Almost done — let's polish your CV."
+      return 'Almost done.'
     default:
-      return 'Thanks!'
+      return 'Thank you.'
   }
 }
 
@@ -80,7 +128,7 @@ export function isSkip(value: string): boolean {
   return !v || v === 'skip' || v === 'no' || v === 'n/a' || v === 'none' || v === 'pass'
 }
 
-export function getStepHints(stepIndex: number): string[] {
-  if (stepIndex < 0 || stepIndex >= CHAT_FLOW.length) return []
-  return [...CHAT_FLOW[stepIndex].hints]
+export function getStepHints(flow: ChatStep[], stepIndex: number): string[] {
+  if (stepIndex < 0 || stepIndex >= flow.length) return []
+  return [...flow[stepIndex].hints]
 }

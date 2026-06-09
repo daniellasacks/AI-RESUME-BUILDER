@@ -31,8 +31,17 @@ function inferYears(input: WizardInput): string | undefined {
 }
 
 function professionalSummary(input: WizardInput, yearsExperience?: string): string {
+  const updateGoals = input.target.description.trim()
+
   if (input.careerSummary.trim()) {
     const base = input.careerSummary.trim()
+    if (updateGoals) {
+      const merged = `${base} Focus areas: ${updateGoals}`
+      if (input.target.title && !merged.toLowerCase().includes(input.target.title.toLowerCase())) {
+        return `${merged} Targeting ${input.target.title} roles.`
+      }
+      return merged.endsWith('.') ? merged : `${merged}.`
+    }
     if (input.target.title && !base.toLowerCase().includes(input.target.title.toLowerCase())) {
       return `${base} Seeking ${input.target.title} opportunities where I can contribute my experience and help the organization grow.`
     }
