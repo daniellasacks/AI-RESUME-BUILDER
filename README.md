@@ -91,7 +91,9 @@ npm run dev
 
 Deployment is handled by [`.github/workflows/deploy-web.yml`](.github/workflows/deploy-web.yml) (Vite build + GitHub Actions).
 
-In the repo **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions** (not “Deploy from branch” / `docs`). The `docs/` folder exists only so the legacy Pages Jekyll step does not fail if it still runs in parallel.
+In the repo **Settings → Pages → Build and deployment**, set **Source** to **Deploy from a branch**, branch **main**, folder **/docs**.
+
+> If you still see an old version, hard-refresh (`Cmd+Shift+R`) or open in a private window. The live site must load assets from `docs/` on `main` (e.g. `index-CZ6Qa0RM.css`), not an older GitHub Actions artifact.
 
 ## Docs
 

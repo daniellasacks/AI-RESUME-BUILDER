@@ -107,9 +107,34 @@ function HintChips({ hints, onPick }: { hints: string[]; onPick: (h: string) => 
   )
 }
 
+function ChatWelcome({ onStart }: { onStart: () => void }) {
+  return (
+    <div className="flex flex-1 items-center justify-center p-6">
+      <div className="w-full max-w-md rounded-3xl bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 p-8 text-center text-white shadow-2xl shadow-violet-500/30">
+        <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-white/20 text-2xl backdrop-blur">
+          ✦
+        </div>
+        <h2 className="mt-5 text-2xl font-bold">Let's build your CV</h2>
+        <p className="mt-3 text-sm text-white/80 leading-relaxed">
+          I'll ask 8 quick questions about your career. Your resume updates live on the right — no forms needed.
+        </p>
+        <ul className="mt-5 space-y-2 text-left text-sm text-white/90">
+          <li className="flex items-center gap-2"><span className="text-emerald-300">✓</span> Multiple jobs & achievements</li>
+          <li className="flex items-center gap-2"><span className="text-emerald-300">✓</span> Skills, tools & education</li>
+          <li className="flex items-center gap-2"><span className="text-emerald-300">✓</span> Download PDF when done</li>
+        </ul>
+        <Button onClick={onStart} className="mt-8 w-full !bg-white !py-3.5 !text-base !font-bold !text-violet-700 hover:!bg-violet-50">
+          Let's go →
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 export function ChatCvPage() {
   const toasts = useToasts()
   const bottomRef = useRef<HTMLDivElement | null>(null)
+  const [started, setStarted] = useState(false)
   const [chat, setChat] = useState<ChatState>(() => createChatSession())
   const [draft, setDraft] = useState('')
   const [thinking, setThinking] = useState(false)
@@ -240,9 +265,22 @@ export function ChatCvPage() {
   const inputDisabled = thinking || generating || chat.phase === 'ready' || chat.phase === 'generated'
   const progressStep = chat.phase === 'ready' || chat.phase === 'generated' ? TOTAL_STEPS : chat.stepIndex
 
+  if (!started) {
+    return (
+      <div className="-mx-6 flex h-[calc(100vh-3.5rem)] flex-col lg:flex-row">
+        <div className="flex min-h-0 flex-1 flex-col lg:w-[62%]">
+          <ChatWelcome onStart={() => setStarted(true)} />
+        </div>
+        <div className="flex min-h-[200px] items-center justify-center border-t border-violet-200 bg-gradient-to-br from-violet-100 to-fuchsia-100 p-8 lg:w-[38%] lg:border-l lg:border-t-0">
+          <p className="text-center text-sm font-medium text-violet-600">Your CV preview will appear here →</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="-mx-6 flex h-[calc(100vh-3.5rem)] flex-col lg:flex-row">
-      <div className="flex min-h-0 flex-1 flex-col lg:w-[62%]">
+      <div className="flex min-h-0 flex-1 flex-col bg-white/50 lg:w-[62%]">
         {chat.phase === 'interview' ? <ProgressBar step={progressStep} total={TOTAL_STEPS} /> : null}
 
         <div className="flex-1 overflow-y-auto px-6 py-5">
