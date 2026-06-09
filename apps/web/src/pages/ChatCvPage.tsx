@@ -16,19 +16,44 @@ import { useToasts } from '../components/toast'
 
 type Version = { id: string; version: number; structuredJson: ResumeJson }
 
+function StepDots({ current, total }: { current: number; total: number }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      {Array.from({ length: total }).map((_, i) => (
+        <div
+          key={i}
+          className={
+            'h-1.5 rounded-full transition-all duration-300 ' +
+            (i < current ? 'w-4 bg-[#3b7ddd]' : i === current ? 'w-6 bg-[#3b7ddd]' : 'w-1.5 bg-[#e5e7eb]')
+          }
+        />
+      ))}
+    </div>
+  )
+}
+
+function AiAvatar() {
+  return (
+    <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[#3b7ddd] text-[9px] font-bold text-white">
+      AI
+    </div>
+  )
+}
+
 function Message({ role, content }: { role: 'assistant' | 'user'; content: string }) {
   if (role === 'user') {
     return (
-      <div className="flex justify-end">
-        <div className="max-w-[85%] rounded-[16px] rounded-br-[4px] bg-[#2563eb] px-4 py-3 text-[15px] leading-relaxed text-white">
+      <div className="flex justify-end gap-2 py-1">
+        <div className="max-w-[80%] rounded-2xl rounded-br-md bg-[#3b7ddd] px-4 py-2.5 text-[15px] leading-relaxed text-white shadow-md shadow-blue-500/15">
           <span className="whitespace-pre-wrap">{content}</span>
         </div>
       </div>
     )
   }
   return (
-    <div className="flex justify-start">
-      <div className="max-w-[85%] rounded-[16px] rounded-bl-[4px] border border-[#e5e7eb] bg-[#f7f8fa] px-4 py-3 text-[15px] leading-relaxed text-[#111827]">
+    <div className="flex gap-2.5 py-1">
+      <AiAvatar />
+      <div className="max-w-[85%] rounded-2xl rounded-tl-md bg-white px-4 py-2.5 text-[15px] leading-relaxed text-[#111827] shadow-sm ring-1 ring-black/[0.04]">
         <span className="whitespace-pre-wrap">{content}</span>
       </div>
     </div>
@@ -37,9 +62,16 @@ function Message({ role, content }: { role: 'assistant' | 'user'; content: strin
 
 function TypingIndicator() {
   return (
-    <div className="flex justify-start">
-      <div className="rounded-[16px] rounded-bl-[4px] border border-[#e5e7eb] bg-[#f7f8fa] px-4 py-3 text-sm text-[#6b7280]">
-        AI is thinking…
+    <div className="flex gap-2.5 py-1">
+      <AiAvatar />
+      <div className="flex items-center gap-1 rounded-2xl rounded-tl-md bg-white px-4 py-3 shadow-sm ring-1 ring-black/[0.04]">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="size-1.5 animate-bounce rounded-full bg-[#94a3b8]"
+            style={{ animationDelay: `${i * 140}ms` }}
+          />
+        ))}
       </div>
     </div>
   )
@@ -71,7 +103,6 @@ export function ChatCvPage() {
   const currentStep = chat.phase === 'interview' ? CHAT_FLOW[chat.stepIndex] : null
   const multiline = currentStep && 'multiline' in currentStep && currentStep.multiline
   const progressStep = chat.phase === 'ready' || chat.phase === 'generated' ? TOTAL_STEPS : chat.stepIndex
-  const progressPct = Math.round((progressStep / TOTAL_STEPS) * 100)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -121,7 +152,7 @@ export function ChatCvPage() {
         phase: 'generated',
         messages: [
           ...prev.messages,
-          { id: crypto.randomUUID(), role: 'assistant', content: 'Your CV is ready. Use the actions below to refine or download.' },
+          { id: crypto.randomUUID(), role: 'assistant', content: 'Your CV is ready — refine it or download the PDF.' },
         ],
       }))
       setTimeout(() => setJustGenerated(false), 2000)
@@ -169,32 +200,45 @@ export function ChatCvPage() {
   const inputDisabled = thinking || generating || chat.phase === 'ready' || chat.phase === 'generated'
 
   return (
-    <div className="surface flex h-full min-h-0 overflow-hidden shadow-sm">
+    <div className="app-window flex h-full min-h-0 overflow-hidden">
       {/* Chat */}
-      <div className="flex min-h-0 flex-1 flex-col border-[#e5e7eb] lg:w-[58%] lg:border-r">
-        {chat.phase === 'interview' ? (
-          <div className="h-1 bg-[#f7f8fa]">
-            <div className="h-full bg-[#2563eb] transition-all duration-500" style={{ width: `${progressPct}%` }} />
+      <div className="flex min-h-0 flex-1 flex-col bg-white lg:w-[56%]">
+        <div className="flex items-center justify-between border-b border-[#e5e7eb]/80 px-5 py-3.5">
+          <div className="flex items-center gap-3">
+            <AiAvatar />
+            <div>
+              <p className="text-sm font-semibold text-[#111827]">CV Coach</p>
+              <p className="text-[11px] text-[#6b7280]">
+                {chat.phase === 'interview'
+                  ? `Question ${progressStep + 1} of ${TOTAL_STEPS}`
+                  : chat.phase === 'ready'
+                    ? 'Ready to generate'
+                    : 'Complete'}
+              </p>
+            </div>
           </div>
-        ) : null}
+          {chat.phase === 'interview' ? <StepDots current={progressStep} total={TOTAL_STEPS} /> : null}
+        </div>
 
-        <div className="flex-1 overflow-y-auto px-5 py-6">
-          <div className="mx-auto max-w-lg space-y-4">
+        <div className="flex-1 overflow-y-auto px-5 py-5">
+          <div className="mx-auto max-w-lg space-y-1">
             {chat.messages.map((m) => (
               <Message key={m.id} role={m.role} content={m.content} />
             ))}
             {thinking ? <TypingIndicator /> : null}
             {chat.phase === 'ready' ? (
-              <Button loading={generating} onClick={() => void generateCv()}>
-                Generate CV
-              </Button>
+              <div className="py-4">
+                <Button loading={generating} onClick={() => void generateCv()} className="!rounded-full shadow-md shadow-blue-500/20">
+                  Generate CV
+                </Button>
+              </div>
             ) : null}
             {chat.phase === 'generated' ? (
-              <div className="flex flex-wrap gap-2 pt-2">
+              <div className="flex flex-wrap gap-2 py-3">
                 <Button variant="secondary" className="!text-xs" loading={busy} onClick={() => void improve('improve')}>Improve</Button>
                 <Button variant="secondary" className="!text-xs" loading={busy} onClick={() => void improve('shorter')}>Shorter</Button>
                 <Button variant="secondary" className="!text-xs" loading={busy} onClick={() => void improve('regenerate-summary')}>New summary</Button>
-                <Button variant="secondary" className="!text-xs" onClick={() => void downloadPdf()}>Download PDF</Button>
+                <Button className="!rounded-full !text-xs shadow-md shadow-blue-500/15" onClick={() => void downloadPdf()}>Download PDF</Button>
               </div>
             ) : null}
             <div ref={bottomRef} />
@@ -205,32 +249,32 @@ export function ChatCvPage() {
         {status ? <div className="px-5 pb-2"><StatusLine>{status}</StatusLine></div> : null}
 
         {chat.phase === 'interview' ? (
-          <div className="shrink-0 border-t border-[#e5e7eb] bg-white p-4">
-            <div className="mx-auto max-w-lg space-y-3">
+          <div className="shrink-0 px-5 pb-5">
+            <div className="composer mx-auto max-w-lg rounded-2xl bg-white p-2">
               {hints.length ? (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 px-2 pb-2">
                   {hints.map((h) => (
                     <button
                       key={h}
                       type="button"
                       onClick={() => (h === 'Skip' ? void submitAnswer('skip') : setDraft((p) => (p ? `${p}, ${h}` : h)))}
-                      className="rounded-[8px] border border-[#e5e7eb] bg-[#f7f8fa] px-3 py-1 text-xs text-[#6b7280] hover:border-[#2563eb]/30 hover:text-[#2563eb]"
+                      className="rounded-lg bg-[#f3f4f6] px-2.5 py-1 text-xs font-medium text-[#6b7280] transition hover:bg-[#e5e7eb] hover:text-[#111827]"
                     >
                       {h}
                     </button>
                   ))}
                 </div>
               ) : null}
-              <div className="flex gap-2">
+              <div className="flex items-end gap-2 px-1">
                 {multiline ? (
                   <textarea
                     ref={inputRef as React.RefObject<HTMLTextAreaElement>}
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
                     disabled={inputDisabled}
-                    rows={3}
-                    placeholder="Type your answer…"
-                    className="field-textarea min-h-[44px] flex-1"
+                    rows={2}
+                    placeholder="Message…"
+                    className="field-textarea min-h-[40px] flex-1"
                   />
                 ) : (
                   <input
@@ -239,30 +283,38 @@ export function ChatCvPage() {
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={onKeyDown}
                     disabled={inputDisabled}
-                    placeholder="Type your answer…"
+                    placeholder="Message…"
                     className="field-input flex-1"
                   />
                 )}
-                <Button type="button" disabled={inputDisabled || !draft.trim()} onClick={() => void submitAnswer(draft)}>
-                  Send
-                </Button>
+                <button
+                  type="button"
+                  disabled={inputDisabled || !draft.trim()}
+                  onClick={() => void submitAnswer(draft)}
+                  className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#3b7ddd] text-white shadow-md shadow-blue-500/20 transition hover:bg-[#2f6fc4] disabled:opacity-30"
+                >
+                  ↑
+                </button>
               </div>
             </div>
           </div>
         ) : null}
       </div>
 
-      {/* CV preview */}
-      <div className="flex min-h-[40vh] flex-col bg-[#f7f8fa] lg:w-[42%]">
-        <div className="border-b border-[#e5e7eb] bg-white px-5 py-3">
-          <p className="text-sm font-medium text-[#111827]">CV Preview</p>
-          <p className="text-xs text-[#6b7280]">Updates live</p>
+      {/* CV */}
+      <div className="flex min-h-[42vh] flex-col border-t border-[#eee] bg-[#f5f5f5] lg:w-[44%] lg:border-l lg:border-t-0">
+        <div className="flex items-center justify-between border-b border-[#e5e7eb]/60 px-5 py-3.5">
+          <p className="text-sm font-semibold text-[#111827]">Your CV</p>
+          <span className="flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#10b981] shadow-sm ring-1 ring-black/[0.04]">
+            <span className="size-1.5 rounded-full bg-[#10b981]" />
+            Live
+          </span>
         </div>
-        <div className="flex-1 overflow-y-auto p-5">
+        <div className="flex flex-1 items-start justify-center overflow-y-auto p-5 md:p-8">
           <div
             className={
-              'mx-auto w-full max-w-[210mm] border border-[#e5e7eb] bg-white transition-shadow ' +
-              (justGenerated ? 'shadow-md ring-2 ring-[#2563eb]/20' : 'shadow-sm')
+              'doc-paper w-full max-w-[210mm] overflow-hidden rounded-sm bg-white transition-all duration-500 ' +
+              (justGenerated ? 'ring-2 ring-[#3b7ddd]/30' : '')
             }
           >
             <ResumePreview

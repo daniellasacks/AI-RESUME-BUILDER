@@ -4,6 +4,8 @@ import { ProductShell } from './components/ProductShell'
 import { RequireAuth } from './components/RequireAuth'
 import { AuthPage } from './pages/AuthPage'
 import { ChatCvPage } from './pages/ChatCvPage'
+import { LandingPage } from './pages/LandingPage'
+import { MarketingShell } from './components/MarketingShell'
 import { CvBuilderPage } from './pages/CvBuilderPage'
 import { JobTargetsPage } from './pages/JobTargetsPage'
 import { ResumesPage } from './pages/ResumesPage'
@@ -14,9 +16,12 @@ import { TemplatesPage } from './pages/TemplatesPage'
 export default function App() {
   return (
     <Routes>
-      {/* The product opens here — chat + live CV, no landing page */}
+      <Route element={<MarketingShell />}>
+        <Route index element={<LandingPage />} />
+      </Route>
+
       <Route element={<ProductShell />}>
-        <Route index element={<ChatCvPage />} />
+        <Route path="create" element={<ChatCvPage />} />
       </Route>
 
       <Route path="/auth" element={<AuthPage />} />
@@ -36,8 +41,8 @@ export default function App() {
         <Route path="resumes/:resumeId/edit" element={<ResumeEditorPage />} />
         <Route path="job-targets" element={<JobTargetsPage />} />
         <Route path="templates" element={<TemplatesPage />} />
-        <Route path="chat" element={<Navigate to="/" replace />} />
-        <Route path="create" element={<Navigate to="/" replace />} />
+        <Route path="chat" element={<Navigate to="/create" replace />} />
+        <Route path="create" element={<Navigate to="/create" replace />} />
         <Route path="dashboard" element={<Navigate to="/" replace />} />
         <Route path="onboarding" element={<Navigate to="/" replace />} />
       </Route>

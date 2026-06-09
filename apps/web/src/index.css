@@ -2,13 +2,12 @@
 
 @layer base {
   :root {
-    --bg: #f7f8fa;
+    --bg: #fafafa;
     --surface: #ffffff;
-    --text: #111827;
-    --text-secondary: #6b7280;
-    --primary: #2563eb;
-    --border: #e5e7eb;
-    --success: #10b981;
+    --text: #1a1a1a;
+    --text-secondary: #666666;
+    --primary: #3b7ddd;
+    --border: #eeeeee;
     --radius: 12px;
   }
 
@@ -27,11 +26,26 @@
     font-family: Inter, ui-sans-serif, system-ui, sans-serif;
     color: var(--text);
     background: var(--bg);
-    line-height: 1.5;
   }
 }
 
 @layer utilities {
+  .app-window {
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #eee;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.06);
+  }
+
+  .composer {
+    border: 1px solid #e8e8e8;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  }
+
+  .doc-paper {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  }
+
   .surface {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -39,10 +53,10 @@
   }
 
   .field-input {
-    @apply h-11 w-full rounded-[12px] border border-[#e5e7eb] bg-white px-4 text-sm text-[#111827] outline-none transition placeholder:text-[#9ca3af] focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15;
+    @apply h-11 w-full rounded-xl border-0 bg-transparent px-1 text-[15px] text-[#1a1a1a] outline-none placeholder:text-[#aaa];
   }
 
   .field-textarea {
-    @apply w-full rounded-[12px] border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition placeholder:text-[#9ca3af] focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15;
+    @apply w-full resize-none rounded-xl border-0 bg-transparent px-1 py-2 text-[15px] text-[#1a1a1a] outline-none placeholder:text-[#aaa];
   }
 }
