@@ -5,7 +5,7 @@ import { Brand, Button, DemoPill } from './ui'
 import { ErrorBoundary } from './ErrorBoundary'
 
 const nav = [
-  { to: '/app/chat', label: 'Chat' },
+  { to: '/app/chat', label: 'Build CV' },
   { to: '/app/resumes', label: 'My CVs' },
 ]
 
@@ -16,8 +16,8 @@ export function AppShell() {
   const isChat = location.pathname.startsWith('/app/chat')
 
   return (
-    <div className="min-h-full bg-[#f7f8fa]">
-      <header className="border-b border-[#e5e7eb] bg-white">
+    <div className="mesh-bg min-h-full">
+      <header className="border-b border-white/60 bg-white/80 backdrop-blur-md">
         <div className={'mx-auto flex h-14 items-center justify-between gap-4 px-6 ' + (isChat ? '' : 'max-w-5xl')}>
           <button type="button" onClick={() => navTo('/app/chat')}>
             <Brand />
@@ -28,8 +28,10 @@ export function AppShell() {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  'rounded-[8px] px-3 py-1.5 text-sm ' +
-                  (isActive ? 'font-medium text-[#111827]' : 'text-[#6b7280] hover:text-[#111827]')
+                  'rounded-xl px-3 py-1.5 text-sm transition ' +
+                  (isActive
+                    ? 'bg-indigo-50 font-semibold text-indigo-700'
+                    : 'text-[#64748b] hover:bg-indigo-50/50 hover:text-[#0f172a]')
                 }
               >
                 {item.label}

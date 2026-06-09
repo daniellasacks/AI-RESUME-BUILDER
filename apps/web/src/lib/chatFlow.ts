@@ -1,106 +1,75 @@
-/** Structured interview — collects a full, multi-role career profile */
+/** Simple, friendly interview — 8 easy steps */
 export const CHAT_FLOW = [
   {
     id: 'fullName',
-    question: "Hi! I'll help you build a professional, detailed CV. What's your full name?",
+    question: "Hey! 👋 I'm your CV coach. What's your name?",
+    hints: [] as string[],
   },
   {
     id: 'headline',
-    question: 'What is your professional headline? (e.g. HR, Welfare & Administration Manager)',
+    question: 'Great! What do you do professionally?',
+    hints: ['HR Manager', 'Software Engineer', 'Product Designer', 'Marketing Lead'],
   },
   {
     id: 'contact',
-    question: 'Your contact details — email and phone (e.g. you@email.com, 054-123-4567)',
+    question: 'How can employers reach you?',
+    hints: ['you@email.com', '054-123-4567'],
   },
   {
-    id: 'currentJob',
-    question:
-      'Your current (or most recent) role — use this format:\nCompany | Job Title | Years\n(e.g. CallMarker | HR & Welfare Manager | 2019–Today)',
-  },
-  {
-    id: 'currentHighlights',
-    question:
-      'Key achievements in this role — one per line. Be specific (budgets, teams, programs, events, retention, etc.)',
+    id: 'currentRole',
+    question: 'Tell me about your current (or most recent) job — company, title, and what you do there.',
+    hints: ['CallMarker · HR Manager · since 2019', 'Led team of 5, managed budget…'],
     multiline: true,
   },
   {
-    id: 'previousJobs',
-    question:
-      'Previous roles — same format as before. Add as many jobs as you like, separated by a blank line:\n\nCompany | Title | Years\nAchievement 1\nAchievement 2',
+    id: 'previousRoles',
+    question: 'Any previous jobs worth adding? Share them briefly — or skip.',
+    hints: ['Skip'],
     multiline: true,
+    optional: true,
   },
   {
     id: 'skills',
-    question:
-      'Tools & skills — list software, systems, and competencies. Group by category if you like:\nHR: Workday, BambooHR\nProject: Monday, Asana, Notion',
+    question: 'What tools and skills do you work with?',
+    hints: ['Excel, Workday', 'React, TypeScript', 'Monday, Notion'],
     multiline: true,
   },
   {
     id: 'education',
-    question:
-      'Education & training — one per line (e.g. Ariel University | B.A. Psychology | 2013–2017)',
+    question: 'Your education or certifications?',
+    hints: ['University — B.A. Psychology', 'John Bryce — Digital Marketing'],
     multiline: true,
-  },
-  {
-    id: 'languages',
-    question: 'Languages you speak? (e.g. Hebrew & English — Native) — or type "skip"',
-    optional: true,
-  },
-  {
-    id: 'careerSummary',
-    question:
-      'In 2–3 sentences, how would you describe your career strengths and what you bring to an organization? (Or type "skip" and I\'ll write one)',
-    multiline: true,
-    optional: true,
   },
   {
     id: 'targetJob',
-    question: 'What kind of role are you targeting next?',
-  },
-  {
-    id: 'tone',
-    question: 'Should your CV sound more formal or more modern?',
-  },
-  {
-    id: 'jobOptimize',
-    question: 'Paste a job description to optimize for — or type "skip".',
-    optional: true,
+    question: 'Last one — what role are you aiming for next?',
+    hints: ['Senior HR Manager', 'Full Stack Developer', 'Team Lead'],
   },
 ] as const
 
 export type ChatStepId = (typeof CHAT_FLOW)[number]['id']
 
+export const TOTAL_STEPS = CHAT_FLOW.length
+
 export function acknowledgment(stepId: ChatStepId, value: string): string {
   const first = value.trim().split(/\s+/)[0] ?? ''
   switch (stepId) {
     case 'fullName':
-      return first ? `Great to meet you, ${first}!` : 'Thanks!'
+      return first ? `Lovely to meet you, ${first}! ✨` : 'Thanks!'
     case 'headline':
-      return 'Perfect — that sets the tone for your CV.'
+      return 'Perfect.'
     case 'contact':
       return 'Got it.'
-    case 'currentJob':
-      return 'Added to your experience section.'
-    case 'currentHighlights':
-      return 'Strong — those bullets will stand out.'
-    case 'previousJobs':
-      return 'Excellent. Your full career history is shaping up.'
+    case 'currentRole':
+      return 'Nice — adding that to your CV.'
+    case 'previousRoles':
+      return isSkip(value) ? 'No worries.' : 'Great — your full career history is coming together.'
     case 'skills':
-      return 'Skills and tools noted.'
+      return 'Skills noted.'
     case 'education':
-      return 'Education section updated.'
-    case 'languages':
-      return isSkip(value) ? 'No problem.' : 'Languages added.'
-    case 'careerSummary':
-      return isSkip(value) ? "I'll craft a professional summary for you." : 'That will make a great profile summary.'
+      return 'Education added.'
     case 'targetJob':
-      return "I'll align your CV toward that goal."
-    case 'tone':
-      return value.toLowerCase().includes('formal')
-        ? 'Formal, professional tone it is.'
-        : 'Clear, modern tone it is.'
-    case 'jobOptimize':
-      return isSkip(value) ? 'We can tailor later.' : "I'll use this for optimization."
+      return "Almost done — let's polish your CV."
     default:
       return 'Thanks!'
   }
@@ -108,5 +77,10 @@ export function acknowledgment(stepId: ChatStepId, value: string): string {
 
 export function isSkip(value: string): boolean {
   const v = value.trim().toLowerCase()
-  return !v || v === 'skip' || v === 'no' || v === 'n/a' || v === 'none'
+  return !v || v === 'skip' || v === 'no' || v === 'n/a' || v === 'none' || v === 'pass'
+}
+
+export function getStepHints(stepIndex: number): string[] {
+  if (stepIndex < 0 || stepIndex >= CHAT_FLOW.length) return []
+  return [...CHAT_FLOW[stepIndex].hints]
 }

@@ -2,14 +2,17 @@
 
 @layer base {
   :root {
-    --bg: #f7f8fa;
+    --bg: #f8f9fc;
     --surface: #ffffff;
-    --text: #111827;
-    --text-secondary: #6b7280;
-    --primary: #2563eb;
-    --border: #e5e7eb;
+    --text: #0f172a;
+    --text-secondary: #64748b;
+    --primary: #4f46e5;
+    --primary-light: #818cf8;
+    --accent: #ec4899;
+    --accent-teal: #14b8a6;
+    --border: #e2e8f0;
     --success: #10b981;
-    --radius: 12px;
+    --radius: 16px;
   }
 
   html,
@@ -38,11 +41,40 @@
     border-radius: var(--radius);
   }
 
+  .gradient-text {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 45%, #ec4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-bg {
+    background: linear-gradient(135deg, #eef2ff 0%, #faf5ff 40%, #fdf2f8 100%);
+  }
+
+  .gradient-btn {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%);
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+  }
+
+  .gradient-btn:hover {
+    background: linear-gradient(135deg, #4338ca 0%, #6d28d9 50%, #9333ea 100%);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.45);
+  }
+
+  .mesh-bg {
+    background-color: #f8f9fc;
+    background-image:
+      radial-gradient(at 20% 20%, rgba(129, 140, 248, 0.18) 0, transparent 50%),
+      radial-gradient(at 80% 10%, rgba(236, 72, 153, 0.12) 0, transparent 45%),
+      radial-gradient(at 60% 80%, rgba(20, 184, 166, 0.1) 0, transparent 40%);
+  }
+
   .field-input {
-    @apply h-11 w-full rounded-[12px] border border-[#e5e7eb] bg-white px-3 text-sm text-[#111827] outline-none transition placeholder:text-[#9ca3af] focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15;
+    @apply h-12 w-full rounded-2xl border border-[#e2e8f0] bg-white px-4 text-sm text-[#0f172a] outline-none transition placeholder:text-[#94a3b8] focus:border-[#818cf8] focus:ring-2 focus:ring-[#818cf8]/25;
   }
 
   .field-textarea {
-    @apply w-full rounded-[12px] border border-[#e5e7eb] bg-white px-3 py-2.5 text-sm text-[#111827] outline-none transition placeholder:text-[#9ca3af] focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15;
+    @apply w-full rounded-2xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm text-[#0f172a] outline-none transition placeholder:text-[#94a3b8] focus:border-[#818cf8] focus:ring-2 focus:ring-[#818cf8]/25;
   }
 }

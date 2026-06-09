@@ -44,8 +44,8 @@ export function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-full flex-col bg-[#f7f8fa]">
-      <header className="border-b border-[#e5e7eb] bg-white">
+    <div className="mesh-bg flex min-h-full flex-col">
+      <header className="border-b border-white/60 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-md items-center justify-between px-6">
           <Link to="/">
             <Brand />

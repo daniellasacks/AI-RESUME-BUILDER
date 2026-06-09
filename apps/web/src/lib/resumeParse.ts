@@ -37,6 +37,60 @@ function parseHighlights(lines: string[]): string {
     .join('\n')
 }
 
+/** Parse freeform current role — pipe format, "Title at Company", or natural text + bullet lines */
+export function parseCurrentRole(text: string): WizardExperience {
+  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean)
+  if (!lines.length) return { company: '', title: '', startDate: '', endDate: '', highlights: '' }
+
+  const first = lines[0]
+  const pipe = parseJobHeader(first)
+  if (pipe.company && pipe.title) {
+    return {
+      company: pipe.company,
+      title: pipe.title,
+      startDate: pipe.startDate || '',
+      endDate: pipe.endDate || 'Present',
+      highlights: lines.slice(1).join('\n'),
+    }
+  }
+
+  const dotParts = first.split(/[·•|]/).map((s) => s.trim()).filter(Boolean)
+  if (dotParts.length >= 2) {
+    const since = first.match(/since\s+(\d{4})/i)?.[1] ?? first.match(/(\d{4})\s*[–—-]\s*(Today|Present|\d{4})/i)
+    const dates = since
+      ? typeof since === 'string'
+        ? { startDate: since, endDate: 'Present' }
+        : parseDateRange(`${since[1]}–${since[2]}`)
+      : { startDate: '', endDate: '' }
+    return {
+      company: dotParts[0],
+      title: dotParts[1],
+      startDate: dates.startDate,
+      endDate: dates.endDate,
+      highlights: lines.slice(1).join('\n') || dotParts.slice(2).join('\n'),
+    }
+  }
+
+  const titleAt = first.match(/^(.+?)\s+at\s+(.+?)$/i)
+  if (titleAt) {
+    return {
+      title: titleAt[1].trim(),
+      company: titleAt[2].trim(),
+      startDate: '',
+      endDate: 'Present',
+      highlights: lines.slice(1).join('\n'),
+    }
+  }
+
+  return {
+    company: lines.length > 1 ? first : '',
+    title: lines.length > 1 ? '' : first,
+    startDate: '',
+    endDate: 'Present',
+    highlights: lines.slice(1).join('\n'),
+  }
+}
+
 /** Parse one or more job blocks separated by blank lines */
 export function parseJobsText(text: string): WizardExperience[] {
   const blocks = text.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean)
