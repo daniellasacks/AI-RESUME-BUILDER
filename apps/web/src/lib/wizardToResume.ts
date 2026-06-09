@@ -31,6 +31,36 @@ function professionalSummary(input: WizardInput): string {
   return parts.join(' ')
 }
 
+/** Literal mapping — used for before/after AI reveal */
+export function wizardToResumeRaw(input: WizardInput): ResumeJson {
+  const skillItems = input.skills.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean)
+  return {
+    basics: {
+      fullName: input.personal.fullName || 'Your Name',
+      headline: input.personal.headline || input.target.title || undefined,
+      email: input.personal.email || undefined,
+      phone: input.personal.phone || undefined,
+      location: input.personal.location || undefined,
+      summary: input.experience[0]?.highlights?.split('\n')[0] || 'Experienced professional seeking new opportunities.',
+    },
+    experience: input.experience
+      .filter((e) => e.company && e.title)
+      .map((e) => ({
+        company: e.company,
+        title: e.title,
+        startDate: e.startDate || undefined,
+        endDate: e.endDate || undefined,
+        highlights: e.highlights.split('\n').map((s) => s.trim()).filter(Boolean),
+      })),
+    skills: skillItems.length ? [{ category: 'Skills', items: skillItems }] : [],
+    education: input.education
+      ? [{ school: input.education.split('—')[0]?.trim() || input.education, degree: input.education.split('—')[1]?.trim() }]
+      : [],
+    projects: [],
+    certifications: [],
+  }
+}
+
 export function wizardToResume(input: WizardInput): ResumeJson {
   const skillItems = input.skills
     .split(/[,;\n]/)

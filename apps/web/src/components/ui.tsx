@@ -1,18 +1,45 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react'
 import { Link } from 'react-router-dom'
+import { PRODUCT_NAME, PRODUCT_TAGLINE } from '../lib/brand'
 
 export function Brand({ compact }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="flex size-9 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white shadow-sm shadow-blue-600/25">
-        CV
+      <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 text-xs font-bold text-white shadow-sm shadow-blue-600/30">
+        AI
       </div>
       {!compact ? (
-        <div>
-          <span className="block text-sm font-bold text-slate-900">Career Profile</span>
-          <span className="block text-[10px] font-medium text-slate-500">AI CV Builder</span>
+        <div className="min-w-0 max-w-[200px] sm:max-w-none">
+          <span className="block text-sm font-bold leading-tight text-slate-900">{PRODUCT_NAME}</span>
+          <span className="block text-[10px] font-medium text-slate-500">{PRODUCT_TAGLINE}</span>
         </div>
       ) : null}
+    </div>
+  )
+}
+
+export function ChangeBanner({ changes, onDismiss }: { changes: string[]; onDismiss?: () => void }) {
+  if (!changes.length) return null
+  return (
+    <div className="rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-blue-50 px-4 py-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-emerald-900">✦ AI updated your CV</p>
+          <ul className="mt-2 space-y-1">
+            {changes.map((c) => (
+              <li key={c} className="flex items-start gap-2 text-xs text-emerald-800">
+                <span className="mt-0.5 text-emerald-500">→</span>
+                {c}
+              </li>
+            ))}
+          </ul>
+        </div>
+        {onDismiss ? (
+          <button type="button" onClick={onDismiss} className="text-xs text-slate-400 hover:text-slate-600">
+            Dismiss
+          </button>
+        ) : null}
+      </div>
     </div>
   )
 }
@@ -52,19 +79,26 @@ export function Stat({ label, value }: { label: string; value: ReactNode }) {
   )
 }
 
-type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'ghost' }
+type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'ghost'; loading?: boolean }
 
-export function Button({ variant = 'primary', className = '', children, ...props }: BtnProps) {
+export function Button({ variant = 'primary', className = '', loading, children, disabled, ...props }: BtnProps) {
   const base =
-    'inline-flex items-center justify-center gap-2 rounded-[12px] text-sm font-semibold transition disabled:opacity-50'
+    'inline-flex items-center justify-center gap-2 rounded-[12px] text-sm font-semibold transition disabled:pointer-events-none disabled:opacity-50'
   const styles = {
     primary: 'bg-blue-600 px-5 py-2.5 text-white shadow-sm hover:bg-blue-700',
     secondary: 'border border-slate-200 bg-white px-5 py-2.5 text-slate-700 hover:bg-slate-50',
     ghost: 'px-3 py-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900',
   }
   return (
-    <button className={`${base} ${styles[variant]} ${className}`} {...props}>
-      {children}
+    <button className={`${base} ${styles[variant]} ${className}`} disabled={disabled || loading} {...props}>
+      {loading ? (
+        <>
+          <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          <span>{children}</span>
+        </>
+      ) : (
+        children
+      )}
     </button>
   )
 }

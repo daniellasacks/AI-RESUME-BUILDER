@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { api, DEMO_MODE } from '../lib/api'
 import { useAuth } from '../lib/auth'
+import { PRODUCT_NAME } from '../lib/brand'
 import { Alert, Brand, Button, Card, DemoPill, Field, Input } from '../components/ui'
 
 export function AuthPage() {
@@ -56,7 +57,7 @@ export function AuthPage() {
       <main className="flex flex-1 items-center justify-center px-6 py-16">
         <Card className="w-full max-w-md p-8">
           <h1 className="text-2xl font-bold text-slate-900">{mode === 'register' ? 'Create account' : 'Welcome back'}</h1>
-          <p className="mt-1 text-sm text-slate-500">Start building your job-ready CV.</p>
+          <p className="mt-1 text-sm text-slate-500">Sign in to {PRODUCT_NAME}.</p>
 
           <form onSubmit={onAuth} className="mt-8 grid gap-5">
             {mode === 'register' ? (

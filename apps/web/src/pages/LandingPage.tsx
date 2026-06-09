@@ -1,21 +1,26 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
+import { PRODUCT_NAME } from '../lib/brand'
+import { cvAfter, cvBefore } from '../lib/marketingSamples'
+import { BeforeAfterCv } from '../components/BeforeAfterCv'
+import { BuilderMockup } from '../components/BuilderMockup'
 import { Brand, Button, ButtonLink } from '../components/ui'
 
-const steps = [
-  { n: '1', title: 'Answer questions', desc: 'A guided form collects your experience, skills, and target role.' },
-  { n: '2', title: 'AI builds your CV', desc: 'Structured data becomes professional, ATS-friendly copy.' },
-  { n: '3', title: 'Edit or download', desc: 'Refine with AI actions, save versions, export PDF.' },
+const flow = [
+  { n: '1', title: 'Answer questions', desc: 'Guided form — no blank page syndrome.' },
+  { n: '2', title: 'AI builds your CV', desc: 'Professional copy, ATS structure, instant preview.' },
+  { n: '3', title: 'Tailor & download', desc: 'Paste any job posting and optimize in one click.' },
 ]
 
 export function LandingPage() {
   const { user } = useAuth()
   const nav = useNavigate()
+  const start = user ? '/app/create' : '/auth?mode=register'
 
   return (
     <div className="min-h-full bg-[#f8fafc]">
-      <header className="border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
+      <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <Brand />
           {user ? (
             <Button onClick={() => nav('/app/create')}>Create my CV</Button>
@@ -25,68 +30,110 @@ export function LandingPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 pb-24 pt-16 md:pt-24">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold text-blue-600">AI Career Profile Builder</p>
-          <h1 className="mt-4 text-4xl font-bold leading-tight tracking-tight text-slate-900 md:text-5xl">
-            Build a job-ready CV in minutes with AI
-          </h1>
-          <p className="mx-auto mt-6 max-w-lg text-lg text-slate-500">
-            Answer a few questions, let AI write your professional profile, then edit and download — like a modern SaaS product.
-          </p>
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <ButtonLink to={user ? '/app/create' : '/auth?mode=register'} className="min-w-[180px]">
-              Create my CV
-            </ButtonLink>
-            <ButtonLink to={user ? '/app/create?upload=1' : '/auth?mode=register&upload=1'} variant="secondary" className="min-w-[180px]">
-              Upload existing CV
-            </ButtonLink>
+      {/* Hero */}
+      <section className="relative overflow-hidden border-b border-slate-200/60 bg-white">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(37,99,235,0.08),transparent)]" />
+        <div className="relative mx-auto grid max-w-6xl gap-12 px-6 py-16 lg:grid-cols-2 lg:items-center lg:py-24">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+              <span className="size-1.5 animate-pulse rounded-full bg-blue-500" />
+              AI transforms your experience in seconds
+            </div>
+            <h1 className="mt-6 text-4xl font-bold leading-[1.08] tracking-tight text-slate-900 md:text-5xl lg:text-[3.25rem]">
+              Build a job-ready CV in minutes with AI
+            </h1>
+            <p className="mt-5 max-w-lg text-lg leading-relaxed text-slate-500">
+              {PRODUCT_NAME} interviews you, writes ATS-friendly copy, and tailors your CV to any role — then exports a polished PDF.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <ButtonLink to={start} className="min-w-[160px]">
+                Create my CV
+              </ButtonLink>
+              <ButtonLink to={user ? '/app/create?upload=1' : '/auth?mode=register&upload=1'} variant="secondary">
+                Upload existing CV
+              </ButtonLink>
+            </div>
+            <p className="mt-4 text-xs text-slate-400">Free demo · No credit card · PDF export included</p>
+          </div>
+          <div className="lg:pl-4">
+            <BuilderMockup />
           </div>
         </div>
+      </section>
 
-        <div className="mt-20 grid gap-6 md:grid-cols-3">
-          {steps.map((s) => (
-            <div key={s.n} className="saas-card p-6 text-center md:text-left">
-              <span className="inline-flex size-10 items-center justify-center rounded-xl bg-blue-50 text-sm font-bold text-blue-600">
-                {s.n}
-              </span>
-              <h3 className="mt-4 font-semibold text-slate-900">{s.title}</h3>
+      {/* Before / After */}
+      <section className="mx-auto max-w-6xl px-6 py-20">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-sm font-semibold text-emerald-600">The AI difference</p>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">See the transformation</h2>
+          <p className="mt-3 text-slate-500">Same facts. Professional language, metrics, and ATS-friendly structure.</p>
+        </div>
+        <div className="mt-12">
+          <BeforeAfterCv before={cvBefore} after={cvAfter} />
+        </div>
+      </section>
+
+      {/* Job tailoring — key feature */}
+      <section className="border-y border-slate-200 bg-gradient-to-b from-blue-50/50 to-white py-20">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 lg:grid-cols-2">
+          <div>
+            <p className="text-sm font-semibold text-blue-600">Core feature</p>
+            <h2 className="mt-2 text-3xl font-bold text-slate-900">Optimize for any job in one click</h2>
+            <p className="mt-4 text-slate-500 leading-relaxed">
+              Paste a job link or description. AI rewrites your summary and bullets to match keywords recruiters and ATS systems look for.
+            </p>
+            <ul className="mt-6 space-y-3 text-sm text-slate-600">
+              <li className="flex gap-2"><span className="text-blue-500">✓</span> Paste job URL or full posting</li>
+              <li className="flex gap-2"><span className="text-blue-500">✓</span> Instant ATS match score</li>
+              <li className="flex gap-2"><span className="text-blue-500">✓</span> Version history per role</li>
+            </ul>
+            <ButtonLink to={start} className="mt-8">
+              Try job tailoring
+            </ButtonLink>
+          </div>
+          <div className="saas-card p-6">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Target job</p>
+            <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+              Senior Frontend Developer · Acme Corp
+            </div>
+            <div className="mt-4 w-full rounded-[12px] bg-blue-600 px-5 py-2.5 text-center text-sm font-semibold text-white opacity-90">
+              Optimize CV for this job
+            </div>
+            <div className="mt-4 flex items-center justify-between rounded-xl bg-emerald-50 px-4 py-3">
+              <span className="text-sm font-medium text-emerald-800">ATS match</span>
+              <span className="text-2xl font-bold text-emerald-600">91</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="mx-auto max-w-6xl px-6 py-20">
+        <h2 className="text-center text-3xl font-bold text-slate-900">How it works</h2>
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          {flow.map((s) => (
+            <div key={s.n} className="saas-card p-8">
+              <span className="flex size-11 items-center justify-center rounded-2xl bg-blue-600 text-sm font-bold text-white">{s.n}</span>
+              <h3 className="mt-5 text-lg font-semibold text-slate-900">{s.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-slate-500">{s.desc}</p>
             </div>
           ))}
         </div>
-
-        <div className="saas-card mx-auto mt-16 max-w-3xl overflow-hidden">
-          <div className="grid md:grid-cols-2">
-            <div className="border-b border-slate-100 p-8 md:border-b-0 md:border-r">
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Preview</p>
-              <div className="mt-4 rounded-lg border border-slate-200 bg-white p-5 shadow-inner">
-                <div className="h-2 w-28 rounded bg-slate-200" />
-                <div className="mt-2 h-2 w-40 rounded bg-slate-100" />
-                <div className="mt-6 space-y-2">
-                  <div className="h-2 w-full rounded bg-slate-100" />
-                  <div className="h-2 w-5/6 rounded bg-slate-100" />
-                  <div className="h-2 w-4/6 rounded bg-slate-100" />
-                </div>
-              </div>
-            </div>
-            <div className="bg-slate-50/50 p-8">
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">ATS match</p>
-              <p className="mt-3 text-4xl font-bold text-emerald-600">84</p>
-              <p className="text-sm text-slate-500">Strong keyword alignment</p>
-              <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-200">
-                <div className="h-full w-[84%] rounded-full bg-gradient-to-r from-blue-500 to-emerald-500" />
-              </div>
-            </div>
-          </div>
+        <div className="mt-14 text-center">
+          <ButtonLink to={start} className="min-w-[200px]">
+            Get started — it&apos;s free
+          </ButtonLink>
         </div>
-      </main>
+      </section>
 
-      <footer className="border-t border-slate-200 py-8 text-center text-sm text-slate-500">
-        Portfolio project by{' '}
-        <a href="https://daniellasacks.github.io/portfolio/" className="font-medium text-slate-700 hover:text-blue-600" target="_blank" rel="noopener noreferrer">
-          Daniella Azar
-        </a>
+      <footer className="border-t border-slate-200 py-10 text-center text-sm text-slate-500">
+        <p className="font-medium text-slate-700">{PRODUCT_NAME}</p>
+        <p className="mt-1">
+          Portfolio project by{' '}
+          <a href="https://daniellasacks.github.io/portfolio/" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
+            Daniella Azar
+          </a>
+        </p>
       </footer>
     </div>
   )

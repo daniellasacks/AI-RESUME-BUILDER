@@ -29,6 +29,12 @@
     font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
     color: var(--text);
     background: var(--bg);
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3 {
+    letter-spacing: -0.025em;
   }
 
   ::selection {

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { AiLoadingOverlay } from '../components/AiLoadingOverlay'
 import { Stepper } from '../components/Stepper'
 import { AiHint, Alert, Button, Card, Field, Input, PageHeader, Textarea } from '../components/ui'
+import { PRODUCT_NAME } from '../lib/brand'
 import { api } from '../lib/api'
 import { WIZARD_STEPS, emptyWizard, type WizardInput } from '../lib/wizardTypes'
 import { useToasts } from '../components/toast'
@@ -15,6 +17,7 @@ export function InterviewWizardPage() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [uploadBusy, setUploadBusy] = useState(false)
+  const [showAi, setShowAi] = useState(false)
 
   useEffect(() => {
     if (sp.get('upload') === '1') setStep(4)
@@ -56,23 +59,30 @@ export function InterviewWizardPage() {
       return
     }
     setBusy(true)
+    setShowAi(true)
     setError(null)
+    const started = Date.now()
     try {
-      const res = await api<{ resumeId: string; versionId: string }>('/resume/generate', {
+      const res = await api<{ resumeId: string; versionId: string; changes?: string[] }>('/resume/generate', {
         method: 'POST',
         body: JSON.stringify({ wizard: draft }),
       })
-      nav(`/app/builder/${res.resumeId}?version=${res.versionId}`)
+      const wait = Math.max(0, 5000 - (Date.now() - started))
+      await new Promise((r) => setTimeout(r, wait))
+      if (res.changes?.length) sessionStorage.setItem(`cv-reveal-${res.resumeId}`, JSON.stringify(res.changes))
+      nav(`/app/builder/${res.resumeId}?version=${res.versionId}&reveal=1`)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Generation failed')
     } finally {
       setBusy(false)
+      setShowAi(false)
     }
   }
 
   return (
     <div className="mx-auto max-w-2xl">
-      <PageHeader title="Build your CV" subtitle="Step-by-step — takes about 5 minutes." />
+      <AiLoadingOverlay open={showAi} />
+      <PageHeader title={PRODUCT_NAME} subtitle="Answer a few questions — AI handles the writing." />
 
       <Card className="mb-8 p-6">
         <Stepper steps={WIZARD_STEPS} current={step} />
@@ -184,8 +194,8 @@ export function InterviewWizardPage() {
               Next
             </Button>
           ) : (
-            <Button type="button" disabled={busy} onClick={() => void generate()}>
-              {busy ? 'Generating…' : 'Generate my CV'}
+            <Button type="button" loading={busy} onClick={() => void generate()}>
+              Generate my CV
             </Button>
           )}
         </div>

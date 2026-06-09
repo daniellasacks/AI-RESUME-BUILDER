@@ -10,7 +10,8 @@ import {
   type DemoUser,
 } from './demoStore'
 import { ResumeSchema, type ResumeJson } from './resumeSchema'
-import { wizardToResume } from './wizardToResume'
+import { wizardToResume, wizardToResumeRaw } from './wizardToResume'
+import { describeResumeChanges } from './resumeDiff'
 import type { WizardInput } from './wizardTypes'
 
 function parseBody(init?: RequestInit) {
@@ -137,7 +138,9 @@ export async function demoApi<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (path === '/resume/generate' && method === 'POST') {
     const wizard = body.wizard as WizardInput
+    const beforeJson = wizardToResumeRaw(wizard)
     const structuredJson = wizardToResume(wizard)
+    const changes = describeResumeChanges(beforeJson, structuredJson)
     const title = wizard.target.title ? `${wizard.personal.fullName} — ${wizard.target.title}` : `${wizard.personal.fullName} CV`
     const rid = crypto.randomUUID()
     const versionId = crypto.randomUUID()
@@ -176,18 +179,43 @@ export async function demoApi<T>(path: string, init?: RequestInit): Promise<T> {
       })
     }
     saveState(state)
-    return { resumeId: rid, versionId, structuredJson } as T
+    return { resumeId: rid, versionId, structuredJson, changes, beforeJson } as T
   }
 
   if (path === '/resume/improve' && method === 'POST') {
     const versionId = String(body.versionId ?? '')
     const action = String(body.action ?? 'improve')
+    const job = body.job as { title?: string; company?: string; description?: string; url?: string } | undefined
     const resume = state.resumes.find((r) => r.userId === user.id && r.versions.some((v) => v.id === versionId))
     if (!resume) throw new ApiError({ message: 'Version not found', status: 404 })
     const base = resume.versions.find((v) => v.id === versionId)!
+    const beforeJson = JSON.parse(JSON.stringify(base.structuredJson)) as ResumeJson
     let next: ResumeJson = { ...base.structuredJson, basics: { ...base.structuredJson.basics } }
 
-    if (action === 'shorter' && next.basics.summary) {
+    if ((action === 'optimize-job' || action === 'tailor') && job) {
+      const jtId = crypto.randomUUID()
+      state.jobTargets.unshift({
+        id: jtId,
+        userId: user.id,
+        title: job.title || 'Target role',
+        company: job.company || null,
+        industry: null,
+        location: null,
+        jobDescriptionText: [job.url, job.description].filter(Boolean).join('\n\n') || null,
+        createdAt: now(),
+        updatedAt: now(),
+      })
+      const keywords = (job.description ?? '').match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b|\b[A-Za-z+#.]+\b/g)?.slice(0, 6) ?? []
+      next.basics.summary =
+        `Results-driven ${next.basics.headline ?? 'professional'} targeting ${job.title}${job.company ? ` at ${job.company}` : ''}. ` +
+        (next.basics.summary ?? '').replace(/\.\s*$/, '') +
+        (keywords.length ? `. Aligned with role requirements including ${keywords.slice(0, 4).join(', ')}.` : '.')
+      if (next.experience?.[0]?.highlights?.length) {
+        next.experience[0].highlights = next.experience[0].highlights.map((h) =>
+          h.endsWith('.') ? h : h + '.',
+        )
+      }
+    } else if (action === 'shorter' && next.basics.summary) {
       const words = next.basics.summary.split(/\s+/).slice(0, 35)
       next.basics.summary = words.join(' ') + (words.length >= 35 ? '…' : '')
     } else if (action === 'regenerate-summary') {
@@ -221,7 +249,11 @@ export async function demoApi<T>(path: string, init?: RequestInit): Promise<T> {
     resume.versions.push(version)
     resume.updatedAt = now()
     saveState(state)
-    return version as T
+    let changes = describeResumeChanges(beforeJson, next)
+    if (action === 'optimize-job' && job?.title) {
+      changes = [`Optimized CV for “${job.title}”${job.company ? ` at ${job.company}` : ''}`, ...changes]
+    }
+    return { ...version, changes } as T
   }
 
   if (path === '/resume/tailor' && method === 'POST') {
