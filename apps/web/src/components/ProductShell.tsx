@@ -20,7 +20,7 @@ export function ProductShell() {
             <span className="text-[15px] font-semibold tracking-tight text-stone-900">{PRODUCT_NAME}</span>
             {DEMO_MODE ? (
               <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-[11px] font-medium text-teal-700 ring-1 ring-teal-200">
-                Demo · build 037696b
+                Demo · build 1d016b7
               </span>
             ) : null}
           </div>
