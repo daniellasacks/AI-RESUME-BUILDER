@@ -4,11 +4,6 @@ import { DEMO_MODE } from '../lib/api'
 import { Brand, Button, DemoPill } from './ui'
 import { ErrorBoundary } from './ErrorBoundary'
 
-const nav = [
-  { to: '/app/chat', label: 'Build CV' },
-  { to: '/app/resumes', label: 'My CVs' },
-]
-
 export function AppShell() {
   const { logout } = useAuth()
   const navTo = useNavigate()
@@ -16,31 +11,32 @@ export function AppShell() {
   const isChat = location.pathname.startsWith('/app/chat')
 
   return (
-    <div className="mesh-bg min-h-full">
-      <header className="border-b border-white/60 bg-white/80 backdrop-blur-md">
-        <div className={'mx-auto flex h-14 items-center justify-between gap-4 px-6 ' + (isChat ? '' : 'max-w-5xl')}>
+    <div className="min-h-full bg-white">
+      <header className="border-b border-slate-200 bg-white">
+        <div className={'mx-auto flex h-14 items-center justify-between gap-4 px-5 ' + (isChat ? '' : 'max-w-5xl')}>
           <button type="button" onClick={() => navTo('/app/chat')}>
             <Brand />
           </button>
-          <nav className="hidden items-center gap-1 sm:flex">
-            {nav.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  'rounded-xl px-3 py-1.5 text-sm transition ' +
-                  (isActive
-                    ? 'bg-indigo-50 font-semibold text-indigo-700'
-                    : 'text-[#64748b] hover:bg-indigo-50/50 hover:text-[#0f172a]')
-                }
-              >
-                {item.label}
+          {isChat ? (
+            <NavLink
+              to="/app/resumes"
+              className="text-xs font-medium text-slate-500 hover:text-slate-900"
+            >
+              My CVs
+            </NavLink>
+          ) : (
+            <nav className="flex items-center gap-4">
+              <NavLink to="/app/chat" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">
+                Build CV
               </NavLink>
-            ))}
-          </nav>
+              <NavLink to="/app/resumes" className="text-sm text-slate-500 hover:text-slate-900">
+                My CVs
+              </NavLink>
+            </nav>
+          )}
           <div className="flex items-center gap-3">
             {DEMO_MODE ? <DemoPill /> : null}
-            <Button variant="ghost" className="!px-2 text-xs" onClick={() => { logout(); navTo('/', { replace: true }) }}>
+            <Button variant="ghost" className="!px-2 !text-xs" onClick={() => { logout(); navTo('/', { replace: true }) }}>
               Log out
             </Button>
           </div>

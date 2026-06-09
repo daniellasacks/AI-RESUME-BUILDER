@@ -4,11 +4,11 @@ import { PRODUCT_NAME } from '../lib/brand'
 
 export function Brand({ compact }: { compact?: boolean }) {
   return (
-    <div className="flex items-center gap-2.5">
-      <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 text-[11px] font-bold text-white shadow-md shadow-indigo-500/25">
-        ✦
+    <div className="flex items-center gap-2">
+      <div className="flex size-8 items-center justify-center rounded-lg bg-indigo-600 text-[10px] font-bold text-white">
+        CV
       </div>
-      {!compact ? <span className="text-sm font-semibold text-[#0f172a]">{PRODUCT_NAME}</span> : null}
+      {!compact ? <span className="text-sm font-semibold text-slate-900">{PRODUCT_NAME}</span> : null}
     </div>
   )
 }
@@ -52,7 +52,7 @@ type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' 
 export function Button({ variant = 'primary', className = '', loading, children, disabled, ...props }: BtnProps) {
   const base = 'inline-flex items-center justify-center gap-2 rounded-2xl text-sm font-semibold transition disabled:opacity-50'
   const styles = {
-    primary: 'gradient-btn px-5 py-2.5 text-white',
+    primary: 'bg-indigo-600 px-5 py-2.5 text-white hover:bg-indigo-700',
     secondary: 'border border-[#e2e8f0] bg-white px-5 py-2.5 text-[#0f172a] shadow-sm hover:bg-indigo-50/50',
     ghost: 'px-3 py-2 text-[#64748b] hover:bg-indigo-50/60 hover:text-[#0f172a]',
   }
@@ -83,7 +83,7 @@ export function ButtonLink({
 }) {
   const base = 'inline-flex items-center justify-center gap-2 rounded-2xl text-sm font-semibold transition'
   const styles = {
-    primary: 'gradient-btn px-5 py-2.5 text-white',
+    primary: 'bg-indigo-600 px-5 py-2.5 text-white hover:bg-indigo-700',
     secondary: 'border border-[#e2e8f0] bg-white px-5 py-2.5 text-[#0f172a] shadow-sm hover:bg-indigo-50/50',
     ghost: 'px-3 py-2 text-[#64748b] hover:bg-indigo-50/60',
   }
