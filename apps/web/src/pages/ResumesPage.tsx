@@ -7,7 +7,6 @@ type ResumeListItem = {
   id: string
   title: string
   status: 'draft' | 'published' | 'archived'
-  updatedAt: string
   _count: { versions: number }
 }
 
@@ -26,29 +25,23 @@ export function ResumesPage() {
 
   return (
     <div>
-      <PageHeader
-        title="My CVs"
-        subtitle="Saved versions and exports."
-        action={<ButtonLink to="/app/create">New CV</ButtonLink>}
-      />
+      <PageHeader title="My CVs" action={<ButtonLink to="/app/create">New CV</ButtonLink>} />
 
       {error ? <Alert tone="error">{error}</Alert> : null}
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         {!items ? (
-          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24" />)
+          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20" />)
         ) : items.length === 0 ? (
           <div className="col-span-full">
-            <EmptyState title="No CVs yet." action={<ButtonLink to="/app/create">Create my CV</ButtonLink>} />
+            <EmptyState title="No CVs yet." action={<ButtonLink to="/app/create">Create CV</ButtonLink>} />
           </div>
         ) : (
           items.map((r) => (
-            <Link key={r.id} to={`/app/builder/${r.id}`} className="block">
-              <Card className="p-5 transition hover:shadow-md">
-                <div className="font-semibold text-slate-900">{r.title}</div>
-                <div className="mt-1 text-xs text-slate-500">
-                  {r._count.versions} version{r._count.versions !== 1 ? 's' : ''} · <span className="capitalize">{r.status}</span>
-                </div>
+            <Link key={r.id} to={`/app/builder/${r.id}`}>
+              <Card className="p-5 transition hover:border-[#2563eb]/30">
+                <div className="font-medium text-[#111827]">{r.title}</div>
+                <div className="mt-1 text-xs text-[#6b7280]">{r._count.versions} versions</div>
               </Card>
             </Link>
           ))

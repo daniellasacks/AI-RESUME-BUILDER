@@ -21,13 +21,13 @@ const Ctx = createContext<ToastApi | null>(null)
 function ToastItem({ t, onClose }: { t: Toast; onClose: () => void }) {
   const colors =
     t.kind === 'success'
-      ? 'border-emerald-200 bg-white text-emerald-900'
+      ? 'border-[#e5e7eb] bg-white text-[#111827]'
       : t.kind === 'error'
-        ? 'border-red-200 bg-white text-red-900'
-        : 'border-blue-200 bg-white text-blue-900'
+        ? 'border-red-200 bg-white text-red-700'
+        : 'border-[#e5e7eb] bg-white text-[#6b7280]'
 
   return (
-    <div className={'rounded-xl border px-3 py-2.5 shadow-lg shadow-slate-200/80 ' + colors}>
+    <div className={'rounded-[12px] border px-3 py-2.5 shadow-sm ' + colors}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="text-sm font-medium">{t.title}</div>

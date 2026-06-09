@@ -44,9 +44,9 @@ export function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-full flex-col bg-[#f8fafc]">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex h-16 max-w-lg items-center justify-between px-6">
+    <div className="flex min-h-full flex-col bg-[#f7f8fa]">
+      <header className="border-b border-[#e5e7eb] bg-white">
+        <div className="mx-auto flex h-14 max-w-md items-center justify-between px-6">
           <Link to="/">
             <Brand />
           </Link>
@@ -56,10 +56,10 @@ export function AuthPage() {
 
       <main className="flex flex-1 items-center justify-center px-6 py-16">
         <Card className="w-full max-w-md p-8">
-          <h1 className="text-2xl font-bold text-slate-900">{mode === 'register' ? 'Create account' : 'Welcome back'}</h1>
-          <p className="mt-1 text-sm text-slate-500">Sign in to {PRODUCT_NAME}.</p>
+          <h1 className="text-xl font-semibold text-[#111827]">{mode === 'register' ? 'Create account' : 'Sign in'}</h1>
+          <p className="mt-1 text-sm text-[#6b7280]">{PRODUCT_NAME}</p>
 
-          <form onSubmit={onAuth} className="mt-8 grid gap-5">
+          <form onSubmit={onAuth} className="mt-8 grid gap-4">
             {mode === 'register' ? (
               <Field label="Name">
                 <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
@@ -72,23 +72,23 @@ export function AuthPage() {
               <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={mode === 'register' ? 'new-password' : 'current-password'} />
             </Field>
             {error ? <Alert tone="error">{error}</Alert> : null}
-            <Button type="submit" disabled={busy} className="w-full">
-              {busy ? '…' : mode === 'register' ? 'Create account' : 'Sign in'}
+            <Button type="submit" loading={busy} className="w-full">
+              {mode === 'register' ? 'Create account' : 'Sign in'}
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-slate-500">
+          <p className="mt-6 text-center text-sm text-[#6b7280]">
             {mode === 'register' ? (
               <>
                 Have an account?{' '}
-                <button type="button" onClick={() => setMode('login')} className="font-semibold text-blue-600">
+                <button type="button" onClick={() => setMode('login')} className="font-medium text-[#2563eb]">
                   Sign in
                 </button>
               </>
             ) : (
               <>
                 New here?{' '}
-                <button type="button" onClick={() => setMode('register')} className="font-semibold text-blue-600">
+                <button type="button" onClick={() => setMode('register')} className="font-medium text-[#2563eb]">
                   Create account
                 </button>
               </>
