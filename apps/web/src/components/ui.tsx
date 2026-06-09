@@ -5,7 +5,7 @@ import { PRODUCT_NAME } from '../lib/brand'
 export function Brand({ compact }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="flex size-8 items-center justify-center rounded-[10px] bg-indigo-500 text-[10px] font-bold text-white">
+      <div className="flex size-8 items-center justify-center rounded-[10px] bg-violet-600 text-[10px] font-bold text-white">
         CV
       </div>
       {!compact ? <span className="text-sm font-semibold tracking-tight text-[#111827]">{PRODUCT_NAME}</span> : null}
@@ -46,11 +46,11 @@ export function Stat({ label, value }: { label: string; value: ReactNode }) {
 type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'ghost'; loading?: boolean }
 
 export function Button({ variant = 'primary', className = '', loading, children, disabled, ...props }: BtnProps) {
-  const base = 'inline-flex items-center justify-center gap-2 rounded-[12px] text-sm font-medium transition disabled:opacity-50'
+  const base = 'inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition disabled:opacity-50'
   const styles = {
-    primary: 'bg-indigo-500 px-4 py-2.5 text-white hover:bg-indigo-600',
-    secondary: 'border border-[#e5e7eb] bg-white px-4 py-2.5 text-[#111827] hover:bg-[#f7f8fa]',
-    ghost: 'px-3 py-2 text-[#6b7280] hover:bg-[#f7f8fa] hover:text-[#111827]',
+    primary: 'bg-violet-600 px-4 py-2.5 text-white shadow-sm shadow-violet-500/25 hover:bg-violet-700',
+    secondary: 'border border-violet-200 bg-white px-4 py-2.5 text-violet-900 hover:bg-violet-50',
+    ghost: 'px-3 py-2 text-violet-600 hover:bg-violet-50 hover:text-violet-900',
   }
   return (
     <button className={`${base} ${styles[variant]} ${className}`} disabled={disabled || loading} {...props}>
@@ -77,11 +77,11 @@ export function ButtonLink({
   className?: string
   children: ReactNode
 }) {
-  const base = 'inline-flex items-center justify-center gap-2 rounded-[12px] text-sm font-medium transition'
+  const base = 'inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition'
   const styles = {
-    primary: 'bg-indigo-500 px-4 py-2.5 text-white hover:bg-indigo-600',
-    secondary: 'border border-[#e5e7eb] bg-white px-4 py-2.5 text-[#111827] hover:bg-[#f7f8fa]',
-    ghost: 'px-3 py-2 text-[#6b7280] hover:bg-[#f7f8fa]',
+    primary: 'bg-violet-600 px-4 py-2.5 text-white shadow-sm shadow-violet-500/25 hover:bg-violet-700',
+    secondary: 'border border-violet-200 bg-white px-4 py-2.5 text-violet-900 hover:bg-violet-50',
+    ghost: 'px-3 py-2 text-violet-600 hover:bg-violet-50',
   }
   return (
     <Link to={to} className={`${base} ${styles[variant]} ${className}`}>
