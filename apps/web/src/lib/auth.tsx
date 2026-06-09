@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { api, setToken as persistToken, getToken } from './api'
+import { api, DEMO_MODE, setToken as persistToken, getToken } from './api'
+import { ensureDemoGuest } from './demoGuest'
 
 export type AuthUser = { id: string; email?: string; fullName?: string }
 
@@ -49,6 +50,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null)
     setUser(null)
   }
+
+  useEffect(() => {
+    if (DEMO_MODE && !getToken()) {
+      ensureDemoGuest()
+      setTokenState(getToken())
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (!token) {

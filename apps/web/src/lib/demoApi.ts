@@ -1,4 +1,5 @@
 import { ApiError } from './api'
+import { DEMO_GUEST_ID } from './demoGuest'
 import {
   getUserFromToken,
   hashPassword,
@@ -39,8 +40,17 @@ export async function demoApi<T>(path: string, init?: RequestInit): Promise<T> {
   await new Promise((r) => setTimeout(r, 120))
   const method = (init?.method ?? 'GET').toUpperCase()
   const token = typeof localStorage !== 'undefined' ? localStorage.getItem('ai-resume-token') : null
-  const user = getUserFromToken(token)
   const state = loadState()
+  let user = getUserFromToken(token)
+  if (!user && token?.startsWith('demo:')) {
+    const guestId = token.slice(5)
+    user = state.users.find((u) => u.id === guestId) ?? null
+    if (!user && guestId === DEMO_GUEST_ID) {
+      user = { id: DEMO_GUEST_ID, email: 'guest@demo.local', fullName: 'Guest', passwordHash: 'guest' }
+      state.users.push(user)
+      saveState(state)
+    }
+  }
   const body = parseBody(init)
 
   if (path === '/auth/register' && method === 'POST') {

@@ -18,7 +18,7 @@ export function AuthPage() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const afterAuth = '/app/chat'
+  const afterAuth = '/'
 
   useEffect(() => {
     if (!user) return
