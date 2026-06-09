@@ -19,7 +19,9 @@ export function ProductShell() {
             </div>
             <span className="text-[15px] font-semibold tracking-tight text-stone-900">{PRODUCT_NAME}</span>
             {DEMO_MODE ? (
-              <span className="rounded-full bg-stone-100 px-2.5 py-0.5 text-[11px] font-medium text-stone-500">Demo</span>
+              <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-[11px] font-medium text-teal-700 ring-1 ring-teal-200">
+                Demo · build 037696b
+              </span>
             ) : null}
           </div>
           <nav className="flex items-center gap-1 text-sm" aria-label="Account navigation">
