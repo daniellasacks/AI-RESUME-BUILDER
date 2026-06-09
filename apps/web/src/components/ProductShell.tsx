@@ -5,32 +5,40 @@ import { ErrorBoundary } from './ErrorBoundary'
 
 export function ProductShell() {
   return (
-    <div className="flex h-full flex-col bg-slate-50">
-      <header className="shrink-0 border-b border-slate-200 bg-white">
-        <div className="mx-auto flex h-14 max-w-[1600px] items-center justify-between px-4 md:px-6">
+    <div className="app-canvas flex h-full flex-col">
+      <header className="shrink-0 px-4 pt-4 md:px-6">
+        <div className="mx-auto flex max-w-[1520px] items-center justify-between rounded-2xl border border-white/60 bg-white/70 px-5 py-3 shadow-sm backdrop-blur-md">
           <div className="flex items-center gap-3">
             <div
-              className="flex size-8 items-center justify-center rounded-lg bg-blue-700 text-xs font-bold text-white"
+              className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-md shadow-teal-600/25"
               aria-hidden
             >
-              AI
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M9 12h6M12 9v6M7 3h10a2 2 0 012 2v14l-5-3-5 3V5a2 2 0 012-2z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
             </div>
-            <span className="text-[15px] font-semibold text-slate-900">{PRODUCT_NAME}</span>
+            <span className="text-[15px] font-semibold tracking-tight text-stone-900">{PRODUCT_NAME}</span>
             {DEMO_MODE ? (
-              <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">Demo</span>
+              <span className="rounded-full bg-stone-100 px-2.5 py-0.5 text-[11px] font-medium text-stone-500">Demo</span>
             ) : null}
           </div>
-          <nav className="flex items-center gap-5 text-sm" aria-label="Account navigation">
-            <Link to="/app/resumes" className="text-slate-600 hover:text-slate-900">
+          <nav className="flex items-center gap-1 text-sm" aria-label="Account navigation">
+            <Link
+              to="/app/resumes"
+              className="rounded-lg px-3 py-2 font-medium text-stone-600 transition hover:bg-stone-50 hover:text-stone-900"
+            >
               My CVs
             </Link>
-            <Link to="/auth" className="text-slate-600 hover:text-slate-900">
+            <Link
+              to="/auth"
+              className="rounded-lg bg-stone-900 px-3.5 py-2 font-medium text-white transition hover:bg-stone-800"
+            >
               Sign in
             </Link>
           </nav>
         </div>
       </header>
-      <main className="mx-auto min-h-0 w-full max-w-[1600px] flex-1">
+      <main className="mx-auto min-h-0 w-full max-w-[1520px] flex-1 px-4 pb-4 pt-3 md:px-6 md:pb-6">
         <ErrorBoundary>
           <Outlet />
         </ErrorBoundary>

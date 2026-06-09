@@ -23,19 +23,28 @@ import { useToasts } from '../components/toast'
 
 type Version = { id: string; version: number; structuredJson: ResumeJson }
 
+function AssistantAvatar() {
+  return (
+    <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-teal-700 text-[10px] font-bold text-white shadow-sm">
+      AI
+    </div>
+  )
+}
+
 function Message({ role, content }: { role: 'assistant' | 'user'; content: string }) {
   if (role === 'user') {
     return (
-      <div className="flex justify-end" role="listitem">
-        <div className="max-w-[85%] rounded-xl rounded-br-sm bg-blue-700 px-4 py-3 text-base leading-relaxed text-white">
+      <div className="flex justify-end gap-2" role="listitem">
+        <div className="max-w-[82%] rounded-2xl rounded-br-md bg-gradient-to-br from-teal-600 to-teal-700 px-4 py-3 text-[15px] leading-relaxed text-white shadow-md shadow-teal-900/15">
           <span className="whitespace-pre-wrap">{content}</span>
         </div>
       </div>
     )
   }
   return (
-    <div className="flex justify-start" role="listitem">
-      <div className="max-w-[90%] rounded-xl rounded-bl-sm border border-slate-200 bg-white px-4 py-3 text-base leading-relaxed text-slate-800">
+    <div className="flex gap-3" role="listitem">
+      <AssistantAvatar />
+      <div className="max-w-[85%] rounded-2xl rounded-tl-md border border-stone-100 bg-white px-4 py-3 text-[15px] leading-relaxed text-stone-800 shadow-sm">
         <span className="whitespace-pre-wrap">{content}</span>
       </div>
     </div>
@@ -44,16 +53,23 @@ function Message({ role, content }: { role: 'assistant' | 'user'; content: strin
 
 function TypingIndicator() {
   return (
-    <div className="flex justify-start" role="status" aria-live="polite">
-      <div className="rounded-xl rounded-bl-sm border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500">
-        Assistant is typing…
+    <div className="flex gap-3" role="status" aria-live="polite">
+      <AssistantAvatar />
+      <div className="flex items-center gap-1.5 rounded-2xl rounded-tl-md border border-stone-100 bg-white px-4 py-3 shadow-sm">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="size-1.5 animate-bounce rounded-full bg-teal-400"
+            style={{ animationDelay: `${i * 140}ms` }}
+          />
+        ))}
       </div>
     </div>
   )
 }
 
 const EMPTY_PREVIEW: ResumeJson = {
-  basics: { fullName: 'Your name', summary: 'Your CV will build here as you answer questions.' },
+  basics: { fullName: 'Your name', summary: 'Your CV builds here as you answer.' },
   skills: [],
   experience: [],
   education: [],
@@ -112,8 +128,7 @@ export function ChatCvPage() {
         method: 'POST',
         body: JSON.stringify({ documentId: uploaded.id }),
       })
-      const wizard = resumeJsonToWizard(extracted.resumeJson)
-      setChat(startUpdateInterview(wizard, file.name))
+      setChat(startUpdateInterview(resumeJsonToWizard(extracted.resumeJson), file.name))
       toasts.success('CV imported')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
@@ -141,7 +156,7 @@ export function ChatCvPage() {
 
   async function generateCv() {
     setGenerating(true)
-    setStatus('Generating your CV…')
+    setStatus('Crafting your CV…')
     setError(null)
     try {
       const res = await api<{
@@ -163,11 +178,7 @@ export function ChatCvPage() {
         phase: 'generated',
         messages: [
           ...prev.messages,
-          {
-            id: crypto.randomUUID(),
-            role: 'assistant',
-            content: 'Your CV is ready. Download the PDF or open it in the editor to keep refining.',
-          },
+          { id: crypto.randomUUID(), role: 'assistant', content: 'Done — your CV is ready. Download it or keep refining in the editor.' },
         ],
       }))
       setTimeout(() => setJustGenerated(false), 2000)
@@ -213,170 +224,180 @@ export function ChatCvPage() {
   }
 
   const inputDisabled = thinking || generating || chat.phase === 'ready' || chat.phase === 'generated'
-  const showInterview = chat.phase !== 'welcome'
 
   return (
-    <div className="flex h-full min-h-0 flex-col lg:flex-row">
-      {/* Assistant panel */}
-      <section
-        className="flex min-h-0 flex-1 flex-col border-slate-200 bg-white lg:w-[52%] lg:border-r"
-        aria-label="AI assistant"
-      >
-        {chat.phase === 'interview' ? (
-          <div className="h-1 bg-slate-100" role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100}>
-            <div className="h-full bg-blue-700 transition-all duration-500" style={{ width: `${progressPct}%` }} />
-          </div>
-        ) : null}
+    <div className="workspace-card flex h-full min-h-0 overflow-hidden">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:flex-row">
+        {/* Chat */}
+        <section className="flex min-h-0 flex-1 flex-col bg-[#fcfcfa] lg:w-[52%]" aria-label="AI assistant">
+          {chat.phase === 'interview' ? (
+            <div className="h-1 bg-stone-100" role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100}>
+              <div
+                className="h-full bg-gradient-to-r from-teal-500 via-teal-600 to-amber-500 transition-all duration-500"
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+          ) : null}
 
-        {showInterview ? (
-          <div className="border-b border-slate-200 px-5 py-4 md:px-6">
-            <p className="text-sm font-semibold text-slate-900">
-              {chat.mode === 'update' ? 'Update your CV' : 'Build your CV'}
-            </p>
-            <p className="mt-0.5 text-sm text-slate-600">
-              {chat.phase === 'interview'
-                ? `Question ${progressStep + 1} of ${total}`
-                : chat.phase === 'ready'
-                  ? 'Ready to generate'
-                  : 'Complete'}
-            </p>
-          </div>
-        ) : null}
+          {chat.phase !== 'welcome' ? (
+            <div className="border-b border-stone-100 px-6 py-4">
+              <p className="font-semibold text-stone-900">{chat.mode === 'update' ? 'Refine your CV' : 'Your interview'}</p>
+              <p className="mt-0.5 text-sm text-stone-500">
+                {chat.phase === 'interview'
+                  ? `Step ${progressStep + 1} of ${total}`
+                  : chat.phase === 'ready'
+                    ? 'Ready when you are'
+                    : 'All set'}
+              </p>
+            </div>
+          ) : null}
 
-        <div className="flex-1 overflow-y-auto">
-          {chat.phase === 'welcome' ? (
-            <WelcomeScreen
-              onStartFresh={() => setChat(startFreshInterview())}
-              onUpload={(f) => void handleUpload(f)}
-              uploadBusy={uploadBusy}
-            />
-          ) : (
-            <div className="px-5 py-6 md:px-6" role="list" aria-label="Conversation">
-              <div className="mx-auto max-w-xl space-y-4">
-                {chat.messages.map((m) => (
-                  <Message key={m.id} role={m.role} content={m.content} />
-                ))}
-                {thinking ? <TypingIndicator /> : null}
-                {chat.phase === 'ready' ? (
-                  <Button loading={generating} onClick={() => void generateCv()}>
-                    Generate CV
-                  </Button>
-                ) : null}
-                {chat.phase === 'generated' ? (
-                  <div className="flex flex-wrap gap-2">
-                    <Button variant="secondary" className="!text-sm" loading={busy} onClick={() => void improve('improve')}>
-                      Improve wording
+          <div className="flex-1 overflow-y-auto">
+            {chat.phase === 'welcome' ? (
+              <WelcomeScreen
+                onStartFresh={() => setChat(startFreshInterview())}
+                onUpload={(f) => void handleUpload(f)}
+                uploadBusy={uploadBusy}
+              />
+            ) : (
+              <div className="px-6 py-6" role="list" aria-label="Conversation">
+                <div className="mx-auto max-w-xl space-y-5">
+                  {chat.messages.map((m) => (
+                    <Message key={m.id} role={m.role} content={m.content} />
+                  ))}
+                  {thinking ? <TypingIndicator /> : null}
+                  {chat.phase === 'ready' ? (
+                    <Button loading={generating} onClick={() => void generateCv()}>
+                      Generate CV
                     </Button>
-                    <Button variant="secondary" className="!text-sm" loading={busy} onClick={() => void improve('shorter')}>
-                      Make shorter
-                    </Button>
-                    <Button variant="secondary" className="!text-sm" loading={busy} onClick={() => void improve('regenerate-summary')}>
-                      New summary
-                    </Button>
-                    <Button className="!text-sm" onClick={() => void downloadPdf()}>
-                      Download PDF
-                    </Button>
-                    {resumeId ? (
-                      <Link
-                        to={`/app/builder/${resumeId}`}
-                        className="inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-900 hover:bg-slate-50"
+                  ) : null}
+                  {chat.phase === 'generated' ? (
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="secondary" className="!text-sm" loading={busy} onClick={() => void improve('improve')}>Improve</Button>
+                      <Button variant="secondary" className="!text-sm" loading={busy} onClick={() => void improve('shorter')}>Shorter</Button>
+                      <Button variant="secondary" className="!text-sm" loading={busy} onClick={() => void improve('regenerate-summary')}>New summary</Button>
+                      <Button className="!text-sm" onClick={() => void downloadPdf()}>Download PDF</Button>
+                      {resumeId ? (
+                        <Link
+                          to={`/app/builder/${resumeId}`}
+                          className="inline-flex min-h-[44px] items-center rounded-xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-900 hover:bg-stone-50"
+                        >
+                          Open editor
+                        </Link>
+                      ) : null}
+                    </div>
+                  ) : null}
+                  <div ref={bottomRef} />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {error ? <div className="px-6 pb-2"><Alert tone="error">{error}</Alert></div> : null}
+          {status ? <div className="px-6 pb-2"><StatusLine>{status}</StatusLine></div> : null}
+
+          {chat.phase === 'interview' ? (
+            <div className="shrink-0 px-6 pb-6">
+              <div className="composer-float mx-auto max-w-xl rounded-2xl bg-white p-3">
+                {hints.length ? (
+                  <div className="mb-2 flex flex-wrap gap-2" role="group" aria-label="Suggestions">
+                    {hints.map((h) => (
+                      <button
+                        key={h}
+                        type="button"
+                        onClick={() => (h === 'Skip' ? void submitAnswer('skip') : setDraft((p) => (p ? `${p}, ${h}` : h)))}
+                        className="rounded-full bg-stone-50 px-3 py-1.5 text-sm text-stone-600 ring-1 ring-stone-200 transition hover:bg-teal-50 hover:text-teal-800 hover:ring-teal-200"
                       >
-                        Open in editor
-                      </Link>
-                    ) : null}
+                        {h}
+                      </button>
+                    ))}
                   </div>
                 ) : null}
-                <div ref={bottomRef} />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {error ? (
-          <div className="px-5 pb-2 md:px-6">
-            <Alert tone="error">{error}</Alert>
-          </div>
-        ) : null}
-        {status ? (
-          <div className="px-5 pb-2 md:px-6">
-            <StatusLine>{status}</StatusLine>
-          </div>
-        ) : null}
-
-        {chat.phase === 'interview' ? (
-          <div className="shrink-0 border-t border-slate-200 bg-slate-50 px-5 py-4 md:px-6">
-            <div className="mx-auto max-w-xl space-y-3">
-              {hints.length ? (
-                <div className="flex flex-wrap gap-2" role="group" aria-label="Suggested answers">
-                  {hints.map((h) => (
-                    <button
-                      key={h}
-                      type="button"
-                      onClick={() => (h === 'Skip' ? void submitAnswer('skip') : setDraft((p) => (p ? `${p}, ${h}` : h)))}
-                      className="min-h-[36px] rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 hover:border-blue-400 hover:text-blue-800"
-                    >
-                      {h}
-                    </button>
-                  ))}
+                <div className="flex items-end gap-2">
+                  {multiline ? (
+                    <textarea
+                      ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+                      value={draft}
+                      onChange={(e) => setDraft(e.target.value)}
+                      disabled={inputDisabled}
+                      rows={2}
+                      placeholder="Your answer…"
+                      aria-label="Your answer"
+                      className="field-textarea min-h-[44px] flex-1 border-0 bg-transparent focus:ring-0"
+                    />
+                  ) : (
+                    <input
+                      ref={inputRef as React.RefObject<HTMLInputElement>}
+                      value={draft}
+                      onChange={(e) => setDraft(e.target.value)}
+                      onKeyDown={onKeyDown}
+                      disabled={inputDisabled}
+                      placeholder="Your answer…"
+                      aria-label="Your answer"
+                      className="field-input flex-1 border-0 bg-transparent focus:ring-0"
+                    />
+                  )}
+                  <button
+                    type="button"
+                    disabled={inputDisabled || !draft.trim()}
+                    onClick={() => void submitAnswer(draft)}
+                    className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-teal-600 text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 disabled:opacity-40"
+                    aria-label="Send"
+                  >
+                    ↑
+                  </button>
                 </div>
-              ) : null}
-              <div className="flex gap-2">
-                {multiline ? (
-                  <textarea
-                    ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-                    value={draft}
-                    onChange={(e) => setDraft(e.target.value)}
-                    disabled={inputDisabled}
-                    rows={3}
-                    placeholder="Type your answer…"
-                    aria-label="Your answer"
-                    className="field-textarea flex-1"
-                  />
-                ) : (
-                  <input
-                    ref={inputRef as React.RefObject<HTMLInputElement>}
-                    value={draft}
-                    onChange={(e) => setDraft(e.target.value)}
-                    onKeyDown={onKeyDown}
-                    disabled={inputDisabled}
-                    placeholder="Type your answer…"
-                    aria-label="Your answer"
-                    className="field-input flex-1"
-                  />
-                )}
-                <Button type="button" disabled={inputDisabled || !draft.trim()} onClick={() => void submitAnswer(draft)}>
-                  Send
-                </Button>
               </div>
             </div>
-          </div>
-        ) : null}
-      </section>
+          ) : null}
+        </section>
 
-      {/* Preview panel */}
-      <section className="flex min-h-[45vh] flex-col bg-slate-100 lg:w-[48%]" aria-label="CV preview">
-        <div className="border-b border-slate-200 bg-white px-5 py-4 md:px-6">
-          <p className="text-sm font-semibold text-slate-900">Live preview</p>
-          <p className="mt-0.5 text-sm text-slate-600">
-            {chat.phase === 'welcome' ? 'Starts once you begin' : 'Updates as you answer'}
-          </p>
-        </div>
-        <div className="flex flex-1 items-start justify-center overflow-y-auto p-5 md:p-8">
-          <div
-            className={
-              'w-full max-w-[210mm] bg-white shadow-md ring-1 ring-slate-200 transition-all duration-500 ' +
-              (justGenerated ? 'ring-2 ring-blue-500/40' : '')
-            }
-          >
-            <ResumePreview
-              resume={liveResume}
-              a4
-              generated={chat.phase === 'generated'}
-              highlightSections={chat.phase === 'generated' ? highlights : undefined}
-            />
+        {/* Preview */}
+        <section className="preview-stage flex min-h-[46vh] flex-col border-t border-stone-100 lg:w-[48%] lg:border-l lg:border-t-0" aria-label="CV preview">
+          <div className="flex items-center justify-between border-b border-white/50 px-6 py-4">
+            <div>
+              <p className="font-semibold text-stone-900">Live preview</p>
+              <p className="text-sm text-stone-500">
+                {chat.phase === 'welcome' ? 'Waiting to start' : 'Updates as you go'}
+              </p>
+            </div>
+            {chat.phase !== 'welcome' ? (
+              <span className="flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-teal-700 shadow-sm">
+                <span className="size-1.5 animate-pulse rounded-full bg-teal-500" />
+                Live
+              </span>
+            ) : null}
           </div>
-        </div>
-      </section>
+          <div className="flex flex-1 items-start justify-center overflow-y-auto p-6 md:p-10">
+            {chat.phase === 'welcome' ? (
+              <div className="flex max-w-sm flex-col items-center justify-center py-16 text-center">
+                <div className="flex size-16 items-center justify-center rounded-2xl bg-white/80 text-teal-600 shadow-sm">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" strokeWidth="1.5" />
+                    <path d="M14 2v6h6M8 13h8M8 17h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <p className="mt-5 text-lg font-semibold text-stone-800">Your CV appears here</p>
+                <p className="mt-2 text-sm leading-relaxed text-stone-500">Pick a path on the left to begin building.</p>
+              </div>
+            ) : (
+              <div
+                className={
+                  'doc-float w-full max-w-[210mm] bg-[#fffef9] transition-all duration-500 ' +
+                  (justGenerated ? 'ring-2 ring-teal-400/50' : '')
+                }
+              >
+                <ResumePreview
+                  resume={liveResume}
+                  a4
+                  generated={chat.phase === 'generated'}
+                  highlightSections={chat.phase === 'generated' ? highlights : undefined}
+                />
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   )
 }

@@ -5,7 +5,7 @@ import { PRODUCT_NAME } from '../lib/brand'
 export function Brand({ compact }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="flex size-8 items-center justify-center rounded-lg bg-blue-700 text-[10px] font-bold text-white">
+      <div className="flex size-8 items-center justify-center rounded-lg bg-teal-600 text-[10px] font-bold text-white">
         CV
       </div>
       {!compact ? <span className="text-sm font-semibold tracking-tight text-[#111827]">{PRODUCT_NAME}</span> : null}
@@ -46,11 +46,11 @@ export function Stat({ label, value }: { label: string; value: ReactNode }) {
 type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'ghost'; loading?: boolean }
 
 export function Button({ variant = 'primary', className = '', loading, children, disabled, ...props }: BtnProps) {
-  const base = 'inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg text-sm font-medium transition disabled:opacity-50'
+  const base = 'inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl text-sm font-semibold transition disabled:opacity-50'
   const styles = {
-    primary: 'bg-blue-700 px-4 py-2.5 text-white hover:bg-blue-800 focus-visible:ring-2 focus-visible:ring-blue-600/40',
-    secondary: 'border border-slate-300 bg-white px-4 py-2.5 text-slate-900 hover:bg-slate-50',
-    ghost: 'px-3 py-2 text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+    primary: 'bg-teal-600 px-5 py-2.5 text-white shadow-md shadow-teal-600/20 hover:bg-teal-700 focus-visible:ring-2 focus-visible:ring-teal-500/30',
+    secondary: 'border border-stone-200 bg-white px-4 py-2.5 text-stone-800 hover:bg-stone-50',
+    ghost: 'px-3 py-2 text-stone-600 hover:bg-stone-50 hover:text-stone-900',
   }
   return (
     <button className={`${base} ${styles[variant]} ${className}`} disabled={disabled || loading} {...props}>
@@ -77,11 +77,11 @@ export function ButtonLink({
   className?: string
   children: ReactNode
 }) {
-  const base = 'inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg text-sm font-medium transition'
+  const base = 'inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl text-sm font-semibold transition'
   const styles = {
-    primary: 'bg-blue-700 px-4 py-2.5 text-white hover:bg-blue-800',
-    secondary: 'border border-slate-300 bg-white px-4 py-2.5 text-slate-900 hover:bg-slate-50',
-    ghost: 'px-3 py-2 text-slate-600 hover:bg-slate-50',
+    primary: 'bg-teal-600 px-5 py-2.5 text-white shadow-md shadow-teal-600/20 hover:bg-teal-700',
+    secondary: 'border border-stone-200 bg-white px-4 py-2.5 text-stone-800 hover:bg-stone-50',
+    ghost: 'px-3 py-2 text-stone-600 hover:bg-stone-50',
   }
   return (
     <Link to={to} className={`${base} ${styles[variant]} ${className}`}>
