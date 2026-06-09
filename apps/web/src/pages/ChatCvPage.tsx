@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { api } from '../lib/api'
+import { CHAT_FLOW } from '../lib/chatFlow'
 import {
   applyChatAnswer,
   chatToLiveResume,
@@ -11,7 +12,7 @@ import {
 } from '../lib/chatEngine'
 import type { ResumeJson } from '../lib/resumeSchema'
 import { ResumePreview } from '../components/ResumePreview'
-import { Alert, Button, StatusLine } from '../components/ui'
+import { Alert, Button, StatusLine, Textarea } from '../components/ui'
 import { useToasts } from '../components/toast'
 
 type Version = { id: string; version: number; structuredJson: ResumeJson }
@@ -49,7 +50,7 @@ function ChatBubble({ role, content }: { role: 'assistant' | 'user'; content: st
             : 'rounded-bl-[4px] border border-[#e5e7eb] bg-white text-[#111827]')
         }
       >
-        {content}
+        <span className="whitespace-pre-wrap">{content}</span>
       </div>
     </div>
   )
@@ -186,6 +187,8 @@ export function ChatCvPage() {
   ]
 
   const inputDisabled = thinking || generating || chat.phase === 'ready' || chat.phase === 'generated'
+  const currentStep = chat.phase === 'interview' ? CHAT_FLOW[chat.stepIndex] : null
+  const useTextarea = currentStep && 'multiline' in currentStep && currentStep.multiline
 
   return (
     <div className="-mx-6 flex h-[calc(100vh-3.5rem)] flex-col lg:flex-row">
@@ -244,23 +247,36 @@ export function ChatCvPage() {
         ) : null}
 
         <form onSubmit={sendMessage} className="border-t border-[#e5e7eb] bg-white px-6 py-4">
-          <div className="mx-auto flex max-w-2xl gap-2">
-            <input
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              disabled={inputDisabled}
-              placeholder={
-                chat.phase === 'ready'
-                  ? 'Click Generate CV above…'
-                  : chat.phase === 'generated'
-                    ? 'CV ready — use actions below'
-                    : 'Type your answer…'
-              }
-              className="field-input h-11 flex-1"
-            />
-            <Button type="submit" disabled={inputDisabled || !draft.trim()}>
-              Send
-            </Button>
+          <div className="mx-auto max-w-2xl space-y-2">
+            {useTextarea ? (
+              <Textarea
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                disabled={inputDisabled}
+                rows={5}
+                placeholder="Type your answer — one item per line where helpful…"
+              />
+            ) : null}
+            <div className="flex gap-2">
+              {useTextarea ? null : (
+                <input
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  disabled={inputDisabled}
+                  placeholder={
+                    chat.phase === 'ready'
+                      ? 'Click Generate CV above…'
+                      : chat.phase === 'generated'
+                        ? 'CV ready — use actions below'
+                        : 'Type your answer…'
+                  }
+                  className="field-input h-11 flex-1"
+                />
+              )}
+              <Button type="submit" disabled={inputDisabled || !draft.trim()} className={useTextarea ? 'w-full' : ''}>
+                Send
+              </Button>
+            </div>
           </div>
         </form>
       </div>

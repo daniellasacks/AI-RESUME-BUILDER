@@ -1,7 +1,8 @@
 import { acknowledgment, CHAT_FLOW, type ChatStepId, isSkip } from './chatFlow'
+import { parseJobHeader, parseJobsText } from './resumeParse'
 import type { ResumeJson } from './resumeSchema'
 import { emptyWizard, type WizardInput } from './wizardTypes'
-import { wizardToResume, wizardToResumeRaw } from './wizardToResume'
+import { wizardToResumeRaw } from './wizardToResume'
 
 export type ChatPhase = 'interview' | 'ready' | 'generated'
 
@@ -20,12 +21,6 @@ export type ChatState = {
   messages: ChatMessage[]
 }
 
-const TECH_KEYWORDS = [
-  'React', 'TypeScript', 'JavaScript', 'Node.js', 'Python', 'Java', 'SQL',
-  'AWS', 'Docker', 'Kubernetes', 'Git', 'Figma', 'HTML', 'CSS', 'Vue',
-  'Angular', 'Next.js', 'GraphQL', 'MongoDB', 'PostgreSQL', 'Redis',
-]
-
 function uid() {
   return crypto.randomUUID()
 }
@@ -42,14 +37,10 @@ export function createChatSession(): ChatState {
   }
 }
 
-function inferSkills(text: string): string {
-  const found = TECH_KEYWORDS.filter((k) => text.toLowerCase().includes(k.toLowerCase()))
-  const commaParts = text
-    .split(/[,;\n]/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 1 && s.length < 40 && s.split(' ').length <= 4)
-  const merged = [...new Set([...found, ...commaParts.slice(0, 8)])]
-  return merged.join(', ')
+function parseContact(value: string): { email: string; phone: string } {
+  const email = value.match(/[\w.+-]+@[\w.-]+\.\w+/)?.[0] ?? ''
+  const phone = value.match(/[\d\-+() ]{8,}/)?.[0]?.trim() ?? ''
+  return { email, phone }
 }
 
 export function applyChatAnswer(state: ChatState, value: string): ChatState {
@@ -65,8 +56,17 @@ export function applyChatAnswer(state: ChatState, value: string): ChatState {
   if (step.id === 'tone') {
     tone = trimmed.toLowerCase().includes('formal') ? 'formal' : 'modern'
   }
-  if (step.id === 'yearsExperience') {
-    yearsExperience = trimmed.replace(/[^\d.]/g, '') || trimmed
+
+  // Infer years from job date ranges
+  if (step.id === 'previousJobs' || step.id === 'currentJob') {
+    const jobs = wizard.experience.filter((e) => e.startDate)
+    if (jobs.length) {
+      const starts = jobs.map((j) => parseInt(j.startDate, 10)).filter((n) => !isNaN(n))
+      if (starts.length) {
+        const earliest = Math.min(...starts)
+        yearsExperience = String(new Date().getFullYear() - earliest)
+      }
+    }
   }
 
   const userMsg: ChatMessage = { id: uid(), role: 'user', content: trimmed }
@@ -110,25 +110,50 @@ function applyToWizard(draft: WizardInput, stepId: ChatStepId, value: string): W
   switch (stepId) {
     case 'fullName':
       return { ...draft, personal: { ...draft.personal, fullName: value } }
-    case 'role':
+    case 'headline':
+      return { ...draft, personal: { ...draft.personal, headline: value } }
+    case 'contact': {
+      const { email, phone } = parseContact(value)
+      return { ...draft, personal: { ...draft.personal, email, phone } }
+    }
+    case 'currentJob': {
+      const header = parseJobHeader(value.split('\n')[0] ?? value)
+      const highlights = value.includes('\n')
+        ? value.split('\n').slice(1).join('\n')
+        : draft.experience[0]?.highlights ?? ''
       return {
         ...draft,
-        personal: { ...draft.personal, headline: value },
+        personal: { ...draft.personal, headline: draft.personal.headline || header.title || '' },
         experience: [
-          { ...draft.experience[0], title: value, company: draft.experience[0]?.company || 'Recent employer' },
+          {
+            company: header.company || '',
+            title: header.title || '',
+            startDate: header.startDate || '',
+            endDate: header.endDate || '',
+            highlights,
+          },
           ...draft.experience.slice(1),
         ],
       }
-    case 'responsibilities': {
-      const skills = inferSkills(value)
+    }
+    case 'currentHighlights':
       return {
         ...draft,
         experience: [{ ...draft.experience[0], highlights: value }, ...draft.experience.slice(1)],
-        skills: skills || draft.skills,
       }
+    case 'previousJobs': {
+      const previous = parseJobsText(value)
+      const current = draft.experience[0]
+      return { ...draft, experience: current?.company || current?.title ? [current, ...previous] : previous }
     }
-    case 'yearsExperience':
-      return draft
+    case 'skills':
+      return { ...draft, skills: value }
+    case 'education':
+      return { ...draft, education: value }
+    case 'languages':
+      return isSkip(value) ? draft : { ...draft, languages: value }
+    case 'careerSummary':
+      return isSkip(value) ? draft : { ...draft, careerSummary: value }
     case 'targetJob':
       return { ...draft, target: { ...draft.target, title: value } }
     case 'tone':
@@ -141,41 +166,18 @@ function applyToWizard(draft: WizardInput, stepId: ChatStepId, value: string): W
   }
 }
 
-/** Live preview while interviewing — updates after each answer */
+/** Live preview while interviewing */
 export function chatToLiveResume(state: ChatState): ResumeJson {
-  const raw = wizardToResumeRaw(state.wizard)
-  const years = state.yearsExperience
+  const raw = wizardToResumeRaw(state.wizard, state.yearsExperience || undefined)
   const tone = state.tone
-
-  if (raw.basics.summary && years) {
-    raw.basics.summary = `${years}+ years of experience. ${raw.basics.summary}`
-  }
-
-  if (state.wizard.target.title && raw.basics.summary && !raw.basics.summary.includes(state.wizard.target.title)) {
-    raw.basics.summary = `${raw.basics.summary} Seeking ${state.wizard.target.title} opportunities.`
-  }
 
   if (tone === 'formal' && raw.basics.summary) {
     raw.basics.summary = raw.basics.summary
       .replace(/\bI'm\b/g, 'I am')
       .replace(/\bdon't\b/g, 'do not')
-      .replace(/\bcan't\b/g, 'cannot')
-  } else if (tone === 'modern' && raw.basics.headline) {
-    raw.basics.headline = raw.basics.headline.replace(/\bSenior\b/i, 'Lead')
   }
 
   return raw
-}
-
-export function polishedResume(state: ChatState): ResumeJson {
-  const base = wizardToResume(state.wizard)
-  if (state.yearsExperience && base.basics.summary) {
-    base.basics.summary = `Professional with ${state.yearsExperience}+ years of experience. ${base.basics.summary}`
-  }
-  if (state.tone === 'formal' && base.basics.summary) {
-    base.basics.summary = base.basics.summary.replace(/\bI'm\b/g, 'I am')
-  }
-  return base
 }
 
 export type HighlightSection = 'summary' | 'experience' | 'skills' | 'education'
@@ -189,6 +191,9 @@ export function sectionsFromChanges(changes: string[]): HighlightSection[] {
     if (lower.includes('skill')) out.add('skills')
     if (lower.includes('education')) out.add('education')
   }
-  if (out.size === 0) out.add('summary')
+  if (out.size === 0) {
+    out.add('summary')
+    out.add('experience')
+  }
   return [...out]
 }

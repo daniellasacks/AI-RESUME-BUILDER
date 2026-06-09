@@ -25,6 +25,8 @@ export type WizardInput = {
   experience: WizardExperience[]
   skills: string
   education: string
+  languages: string
+  careerSummary: string
   target: WizardTarget
 }
 
@@ -42,6 +44,8 @@ export function emptyWizard(): WizardInput {
     experience: [{ company: '', title: '', startDate: '', endDate: '', highlights: '' }],
     skills: '',
     education: '',
+    languages: '',
+    careerSummary: '',
     target: { title: '', company: '', description: '' },
   }
 }

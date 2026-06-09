@@ -74,7 +74,7 @@ export function ResumePreview({
                     </div>
                   )}
                   <ul className="mt-0.5 list-disc pl-4 text-zinc-700">
-                    {(e.highlights ?? []).slice(0, isCompact ? 2 : 4).map((h, j) => (
+                    {(e.highlights ?? []).slice(0, isCompact ? 3 : a4 ? 12 : 6).map((h, j) => (
                       <li key={j}>{h}</li>
                     ))}
                   </ul>
@@ -118,6 +118,12 @@ export function ResumePreview({
                   <div className="font-semibold text-zinc-800">{ed.school}</div>
                   <div className="text-zinc-600">
                     {[ed.degree, ed.field].filter(Boolean).join(', ')}
+                    {(ed.startDate || ed.endDate) && (
+                      <span className="text-zinc-500">
+                        {' '}
+                        · {[ed.startDate, ed.endDate].filter(Boolean).join(' – ')}
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}
