@@ -10,6 +10,8 @@ import {
   type DemoUser,
 } from './demoStore'
 import { ResumeSchema, type ResumeJson } from './resumeSchema'
+import { wizardToResume } from './wizardToResume'
+import type { WizardInput } from './wizardTypes'
 
 function parseBody(init?: RequestInit) {
   if (!init?.body || typeof init.body !== 'string') return {}
@@ -125,6 +127,95 @@ export async function demoApi<T>(path: string, init?: RequestInit): Promise<T> {
       jobTargetId: (body.jobTargetId as string) ?? null,
       templateId: (body.templateId as string) ?? null,
       derivedFromVersionId: (body.derivedFromVersionId as string) ?? null,
+      createdAt: now(),
+    }
+    resume.versions.push(version)
+    resume.updatedAt = now()
+    saveState(state)
+    return version as T
+  }
+
+  if (path === '/resume/generate' && method === 'POST') {
+    const wizard = body.wizard as WizardInput
+    const structuredJson = wizardToResume(wizard)
+    const title = wizard.target.title ? `${wizard.personal.fullName} — ${wizard.target.title}` : `${wizard.personal.fullName} CV`
+    const rid = crypto.randomUUID()
+    const versionId = crypto.randomUUID()
+    const resume = {
+      id: rid,
+      userId: user.id,
+      title,
+      status: 'draft' as const,
+      createdAt: now(),
+      updatedAt: now(),
+      versions: [
+        {
+          id: versionId,
+          resumeId: rid,
+          version: 1,
+          structuredJson,
+          jobTargetId: null,
+          templateId: null,
+          derivedFromVersionId: null,
+          createdAt: now(),
+        },
+      ],
+    }
+    state.resumes.unshift(resume)
+    if (wizard.target.title || wizard.target.description) {
+      state.jobTargets.unshift({
+        id: crypto.randomUUID(),
+        userId: user.id,
+        title: wizard.target.title || 'Target role',
+        company: wizard.target.company || null,
+        industry: null,
+        location: null,
+        jobDescriptionText: wizard.target.description || null,
+        createdAt: now(),
+        updatedAt: now(),
+      })
+    }
+    saveState(state)
+    return { resumeId: rid, versionId, structuredJson } as T
+  }
+
+  if (path === '/resume/improve' && method === 'POST') {
+    const versionId = String(body.versionId ?? '')
+    const action = String(body.action ?? 'improve')
+    const resume = state.resumes.find((r) => r.userId === user.id && r.versions.some((v) => v.id === versionId))
+    if (!resume) throw new ApiError({ message: 'Version not found', status: 404 })
+    const base = resume.versions.find((v) => v.id === versionId)!
+    let next: ResumeJson = { ...base.structuredJson, basics: { ...base.structuredJson.basics } }
+
+    if (action === 'shorter' && next.basics.summary) {
+      const words = next.basics.summary.split(/\s+/).slice(0, 35)
+      next.basics.summary = words.join(' ') + (words.length >= 35 ? '…' : '')
+    } else if (action === 'regenerate-summary') {
+      next.basics.summary =
+        `Dedicated ${next.basics.headline ?? 'professional'} with a track record of delivering quality work, collaborating across teams, and continuous learning.`
+    } else if (action === 'tailor') {
+      const jt = state.jobTargets.find((j) => j.userId === user.id)
+      if (jt) {
+        next.basics.summary = (next.basics.summary ?? '') + ` Optimized for ${jt.title}${jt.company ? ` at ${jt.company}` : ''}.`
+      }
+    } else if (action.startsWith('variant:')) {
+      const label = action.replace('variant:', '')
+      resume.title = `${next.basics.fullName} — ${label.charAt(0).toUpperCase() + label.slice(1)} CV`
+    } else if (next.basics.summary) {
+      next.basics.summary = next.basics.summary.replace(/\b(good|nice|helped)\b/gi, (m) =>
+        m.toLowerCase() === 'good' ? 'strong' : m.toLowerCase() === 'nice' ? 'effective' : 'supported',
+      )
+    }
+
+    const nextVersion = (resume.versions.at(-1)?.version ?? 0) + 1
+    const version = {
+      id: crypto.randomUUID(),
+      resumeId: resume.id,
+      version: nextVersion,
+      structuredJson: next,
+      jobTargetId: base.jobTargetId,
+      templateId: base.templateId,
+      derivedFromVersionId: base.id,
       createdAt: now(),
     }
     resume.versions.push(version)

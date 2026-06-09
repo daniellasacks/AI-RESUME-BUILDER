@@ -1,10 +1,17 @@
-# AI Resume SaaS (Portfolio Project)
+# AI Career Profile Builder (Portfolio Project)
 
 **Daniella Azar**
 
 [![GitHub](https://img.shields.io/badge/GitHub-daniellasacks%2FAI--RESUME--BUILDER-181717?logo=github)](https://github.com/daniellasacks/AI-RESUME-BUILDER)
 
-Production-style, AI-powered resume builder you can demo in technical interviews: **auth**, **structured resume JSON**, **immutable version history**, **job targets**, **ATS scoring + recommendations**, **template selection**, and **PDF/DOCX export**.
+AI-powered CV builder with a **guided interview wizard**, **LLM generation**, **split-screen editor** (live A4 preview + AI actions), **ATS scoring**, **version history**, and **PDF / LinkedIn export**.
+
+### Product flow
+
+1. **Landing** — “Build a job-ready CV in minutes with AI”
+2. **Interview wizard** — personal info → experience → skills → target role → optional upload
+3. **AI generation** — structured input → professional, ATS-friendly CV JSON
+4. **CV builder** — improve / shorten / tailor / regenerate + export
 
 ## What this demonstrates (interview talking points)
 

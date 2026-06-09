@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../lib/api'
-import { IconArrowRight, IconFiles } from '../components/icons'
 import { Alert, ButtonLink, Card, EmptyState, PageHeader, Skeleton } from '../components/ui'
 
 type ResumeListItem = {
@@ -26,47 +25,29 @@ export function ResumesPage() {
   }, [])
 
   return (
-    <div className="space-y-8">
+    <div>
       <PageHeader
-        title="Resumes"
-        action={
-          <ButtonLink to="/app/dashboard" variant="secondary">
-            Import
-          </ButtonLink>
-        }
+        title="My CVs"
+        subtitle="Saved versions and exports."
+        action={<ButtonLink to="/app/create">New CV</ButtonLink>}
       />
 
       {error ? <Alert tone="error">{error}</Alert> : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         {!items ? (
-          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28" />)
+          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24" />)
         ) : items.length === 0 ? (
           <div className="col-span-full">
-            <EmptyState
-              title="No resumes yet."
-              action={<ButtonLink to="/app/dashboard">Import or create</ButtonLink>}
-            />
+            <EmptyState title="No CVs yet." action={<ButtonLink to="/app/create">Create my CV</ButtonLink>} />
           </div>
         ) : (
           items.map((r) => (
-            <Link key={r.id} to={`/app/resumes/${r.id}`} className="group block">
-              <Card elevated className="p-5 transition duration-200 group-hover:-translate-y-0.5 group-hover:border-sky-500/30">
-                <div className="flex items-start gap-4">
-                  <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-sky-500/10 text-sky-300">
-                    <IconFiles size={22} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="truncate font-bold text-white">{r.title}</div>
-                      <IconArrowRight size={16} className="shrink-0 text-zinc-600 transition group-hover:text-sky-400" />
-                    </div>
-                    <div className="mt-1 flex items-center gap-2 text-xs text-zinc-500">
-                      <span className="capitalize">{r.status}</span>
-                      <span>·</span>
-                      <span>{r._count.versions} versions</span>
-                    </div>
-                  </div>
+            <Link key={r.id} to={`/app/builder/${r.id}`} className="block">
+              <Card className="p-5 transition hover:shadow-md">
+                <div className="font-semibold text-slate-900">{r.title}</div>
+                <div className="mt-1 text-xs text-slate-500">
+                  {r._count.versions} version{r._count.versions !== 1 ? 's' : ''} · <span className="capitalize">{r.status}</span>
                 </div>
               </Card>
             </Link>

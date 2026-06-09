@@ -46,5 +46,15 @@ export class ResumeController {
   tailor(@Req() req: any, @Body() body: unknown) {
     return this.crud.tailorVersion(req.user.id, body);
   }
+
+  @Post('generate')
+  generate(@Req() req: any, @Body() body: unknown) {
+    return this.crud.generateFromWizard(req.user.id, body);
+  }
+
+  @Post('improve')
+  improve(@Req() req: any, @Body() body: unknown) {
+    return this.crud.improveVersion(req.user.id, body);
+  }
 }
 

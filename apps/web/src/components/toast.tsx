@@ -21,19 +21,19 @@ const Ctx = createContext<ToastApi | null>(null)
 function ToastItem({ t, onClose }: { t: Toast; onClose: () => void }) {
   const colors =
     t.kind === 'success'
-      ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-100'
+      ? 'border-emerald-200 bg-white text-emerald-900'
       : t.kind === 'error'
-        ? 'border-rose-500/20 bg-rose-500/10 text-rose-100'
-        : 'border-sky-500/20 bg-sky-500/10 text-sky-100'
+        ? 'border-red-200 bg-white text-red-900'
+        : 'border-blue-200 bg-white text-blue-900'
 
   return (
-    <div className={'rounded-xl border px-3 py-2.5 shadow-lg shadow-black/20 backdrop-blur-md ' + colors}>
+    <div className={'rounded-xl border px-3 py-2.5 shadow-lg shadow-slate-200/80 ' + colors}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="text-sm font-medium">{t.title}</div>
-          {t.message ? <div className="mt-0.5 text-xs text-zinc-400">{t.message}</div> : null}
+          {t.message ? <div className="mt-0.5 text-xs text-slate-500">{t.message}</div> : null}
         </div>
-        <button onClick={onClose} className="text-xs text-zinc-500 hover:text-white">
+        <button onClick={onClose} className="text-xs text-slate-400 hover:text-slate-700">
           ×
         </button>
       </div>

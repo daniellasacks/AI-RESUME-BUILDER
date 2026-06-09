@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { api, DEMO_MODE } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import { Alert, Brand, Button, Card, DemoPill, Field, Input } from '../components/ui'
@@ -9,18 +9,21 @@ export function AuthPage() {
   const { user, setToken } = useAuth()
   const nav = useNavigate()
   const loc = useLocation()
-  const [mode, setMode] = useState<'login' | 'register'>('register')
+  const [sp] = useSearchParams()
+  const [mode, setMode] = useState<'login' | 'register'>(sp.get('mode') === 'register' ? 'register' : 'register')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [fullName, setFullName] = useState('')
+  const [fullName, setFullName] = useState('Daniella Azar')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const afterAuth = sp.get('upload') === '1' ? '/app/create?upload=1' : '/app/create'
 
   useEffect(() => {
     if (!user) return
     const from = (loc.state as { from?: string } | null)?.from
-    nav(typeof from === 'string' ? from : '/app/dashboard', { replace: true })
-  }, [user, nav, loc.state])
+    nav(typeof from === 'string' ? from : afterAuth, { replace: true })
+  }, [user, nav, loc.state, afterAuth])
 
   async function onAuth(e: FormEvent) {
     e.preventDefault()
@@ -31,7 +34,7 @@ export function AuthPage() {
       const body = mode === 'register' ? { email, password, fullName: fullName || undefined } : { email, password }
       const res = await api<{ token: string }>(path, { method: 'POST', body: JSON.stringify(body) })
       setToken(res.token)
-      nav('/app/dashboard')
+      nav(afterAuth)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Auth failed')
     } finally {
@@ -40,9 +43,9 @@ export function AuthPage() {
   }
 
   return (
-    <div className="mesh-bg flex min-h-full flex-col">
-      <header className="glass-nav">
-        <div className="mx-auto flex h-[72px] max-w-lg items-center justify-between px-6">
+    <div className="flex min-h-full flex-col bg-[#f8fafc]">
+      <header className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex h-16 max-w-lg items-center justify-between px-6">
           <Link to="/">
             <Brand />
           </Link>
@@ -50,36 +53,22 @@ export function AuthPage() {
         </div>
       </header>
 
-      <main className="relative flex flex-1 items-center justify-center px-6 py-16">
-        <div className="pointer-events-none absolute left-1/2 top-1/3 h-64 w-64 -translate-x-1/2 rounded-full bg-sky-500/25 blur-[80px]" />
-        <Card elevated className="relative w-full max-w-[420px] p-8 sm:p-10">
-          <h1 className="text-2xl font-bold tracking-tight text-white">
-            {mode === 'register' ? 'Create account' : 'Welcome back'}
-          </h1>
+      <main className="flex flex-1 items-center justify-center px-6 py-16">
+        <Card className="w-full max-w-md p-8">
+          <h1 className="text-2xl font-bold text-slate-900">{mode === 'register' ? 'Create account' : 'Welcome back'}</h1>
+          <p className="mt-1 text-sm text-slate-500">Start building your job-ready CV.</p>
 
           <form onSubmit={onAuth} className="mt-8 grid gap-5">
             {mode === 'register' ? (
               <Field label="Name">
-                <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Jane Doe" />
+                <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
               </Field>
             ) : null}
             <Field label="Email">
-              <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@email.com"
-                autoComplete="email"
-              />
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
             </Field>
             <Field label="Password">
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
-              />
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={mode === 'register' ? 'new-password' : 'current-password'} />
             </Field>
             {error ? <Alert tone="error">{error}</Alert> : null}
             <Button type="submit" disabled={busy} className="w-full">
@@ -87,18 +76,18 @@ export function AuthPage() {
             </Button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-zinc-500">
+          <p className="mt-6 text-center text-sm text-slate-500">
             {mode === 'register' ? (
               <>
                 Have an account?{' '}
-                <button type="button" onClick={() => setMode('login')} className="font-semibold text-sky-400 hover:text-sky-300">
+                <button type="button" onClick={() => setMode('login')} className="font-semibold text-blue-600">
                   Sign in
                 </button>
               </>
             ) : (
               <>
                 New here?{' '}
-                <button type="button" onClick={() => setMode('register')} className="font-semibold text-sky-400 hover:text-sky-300">
+                <button type="button" onClick={() => setMode('register')} className="font-semibold text-blue-600">
                   Create account
                 </button>
               </>

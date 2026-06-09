@@ -10,21 +10,25 @@ export function ResumePreview({
   resume,
   template,
   compact,
+  a4,
 }: {
   resume: ResumeJson
   template?: TemplateMeta | null
   compact?: boolean
+  a4?: boolean
 }) {
   const isCompact = compact ?? template?.type === 'single-column-compact'
   const sections = template?.sections ?? ['summary', 'experience', 'projects', 'skills', 'education']
-  const pad = isCompact ? 'p-4' : 'p-6'
+  const pad = a4 ? 'p-10' : isCompact ? 'p-4' : 'p-6'
   const gap = isCompact ? 'gap-3' : 'gap-4'
+  const textSize = a4 ? 'text-[12px] leading-relaxed' : isCompact ? 'text-[10px] leading-snug' : 'text-[11px] leading-relaxed'
 
   return (
     <div
       className={
-        'overflow-hidden rounded-xl border border-zinc-700 bg-white text-zinc-900 shadow-inner ' +
-        (isCompact ? 'text-[10px] leading-snug' : 'text-[11px] leading-relaxed')
+        'overflow-hidden bg-white text-zinc-900 ' +
+        (a4 ? 'min-h-[297mm] rounded-none border-0 ' : 'rounded-xl border border-zinc-200 shadow-inner ') +
+        textSize
       }
     >
       <div className={pad + ' ' + gap + ' flex flex-col'}>
