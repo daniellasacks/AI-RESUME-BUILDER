@@ -21,10 +21,10 @@ const Ctx = createContext<ToastApi | null>(null)
 function ToastItem({ t, onClose }: { t: Toast; onClose: () => void }) {
   const colors =
     t.kind === 'success'
-      ? 'border-white/10 bg-zinc-900/90 text-white backdrop-blur-xl'
+      ? 'border-[#e5e7eb] bg-white text-[#111827]'
       : t.kind === 'error'
-        ? 'border-red-500/30 bg-zinc-900/90 text-red-300 backdrop-blur-xl'
-        : 'border-white/10 bg-zinc-900/90 text-zinc-300 backdrop-blur-xl'
+        ? 'border-red-200 bg-white text-red-700'
+        : 'border-[#e5e7eb] bg-white text-[#6b7280]'
 
   return (
     <div className={'rounded-[12px] border px-3 py-2.5 shadow-sm ' + colors}>
