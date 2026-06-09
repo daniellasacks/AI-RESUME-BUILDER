@@ -5,7 +5,7 @@ import { PRODUCT_NAME } from '../lib/brand'
 export function Brand({ compact }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="flex size-8 items-center justify-center rounded-lg bg-[#3b7ddd] text-[10px] font-bold text-white">
+      <div className="flex size-8 items-center justify-center rounded-[10px] bg-indigo-500 text-[10px] font-bold text-white">
         CV
       </div>
       {!compact ? <span className="text-sm font-semibold tracking-tight text-[#111827]">{PRODUCT_NAME}</span> : null}
@@ -48,7 +48,7 @@ type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' 
 export function Button({ variant = 'primary', className = '', loading, children, disabled, ...props }: BtnProps) {
   const base = 'inline-flex items-center justify-center gap-2 rounded-[12px] text-sm font-medium transition disabled:opacity-50'
   const styles = {
-    primary: 'bg-[#3b7ddd] px-4 py-2.5 text-white hover:bg-[#2f6fc4]',
+    primary: 'bg-indigo-500 px-4 py-2.5 text-white hover:bg-indigo-600',
     secondary: 'border border-[#e5e7eb] bg-white px-4 py-2.5 text-[#111827] hover:bg-[#f7f8fa]',
     ghost: 'px-3 py-2 text-[#6b7280] hover:bg-[#f7f8fa] hover:text-[#111827]',
   }
@@ -79,7 +79,7 @@ export function ButtonLink({
 }) {
   const base = 'inline-flex items-center justify-center gap-2 rounded-[12px] text-sm font-medium transition'
   const styles = {
-    primary: 'bg-[#3b7ddd] px-4 py-2.5 text-white hover:bg-[#2f6fc4]',
+    primary: 'bg-indigo-500 px-4 py-2.5 text-white hover:bg-indigo-600',
     secondary: 'border border-[#e5e7eb] bg-white px-4 py-2.5 text-[#111827] hover:bg-[#f7f8fa]',
     ghost: 'px-3 py-2 text-[#6b7280] hover:bg-[#f7f8fa]',
   }
