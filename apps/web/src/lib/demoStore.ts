@@ -120,10 +120,27 @@ export function sampleExtractedResume(): ResumeJson {
         title: 'Senior Engineer',
         startDate: '2022',
         endDate: 'Present',
-        highlights: ['Led migration to NestJS + Prisma', 'Shipped ATS-friendly resume export pipeline'],
+        highlights: [
+          'Led migration to NestJS + Prisma, cutting API response times by 40%',
+          'Shipped ATS-friendly resume export pipeline used by 12k users',
+          'Mentored three junior engineers through onboarding and code review',
+        ],
+      },
+      {
+        company: 'Brightline Studio',
+        title: 'Full Stack Developer',
+        startDate: '2019',
+        endDate: '2022',
+        highlights: [
+          'Built client dashboards in React and TypeScript for 8 retainer accounts',
+          'Introduced CI checks that reduced production bugs by a third',
+        ],
       },
     ],
-    skills: [{ category: 'Backend', items: ['Node.js', 'PostgreSQL', 'Prisma'] }],
+    skills: [
+      { category: 'Frontend', items: ['React', 'TypeScript', 'Tailwind CSS'] },
+      { category: 'Backend', items: ['Node.js', 'PostgreSQL', 'Prisma'] },
+    ],
     education: [{ school: 'State University', degree: 'B.S. Computer Science' }],
   }
 }

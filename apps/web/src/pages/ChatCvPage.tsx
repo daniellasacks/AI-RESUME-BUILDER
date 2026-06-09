@@ -16,6 +16,7 @@ import {
   type HighlightSection,
 } from '../lib/chatEngine'
 import { resumeJsonToWizard } from '../lib/resumeJsonToWizard'
+import { sampleExtractedResume } from '../lib/demoStore'
 import type { ResumeJson } from '../lib/resumeSchema'
 import { ResumePreview } from '../components/ResumePreview'
 import { Alert, Button, StatusLine } from '../components/ui'
@@ -68,12 +69,7 @@ function TypingIndicator() {
   )
 }
 
-const EMPTY_PREVIEW: ResumeJson = {
-  basics: { fullName: 'Your name', summary: 'Your CV builds here as you answer.' },
-  skills: [],
-  experience: [],
-  education: [],
-}
+const SAMPLE_PREVIEW: ResumeJson = sampleExtractedResume()
 
 export function ChatCvPage() {
   const toasts = useToasts()
@@ -98,7 +94,7 @@ export function ChatCvPage() {
   const total = flowTotal(chat)
   const liveResume = useMemo(() => {
     if (generatedResume) return generatedResume
-    if (chat.phase === 'welcome') return EMPTY_PREVIEW
+    if (chat.phase === 'welcome') return SAMPLE_PREVIEW
     return chatToLiveResume(chat)
   }, [chat, generatedResume])
 
@@ -354,47 +350,38 @@ export function ChatCvPage() {
 
         {/* Preview */}
         <section className="preview-stage flex min-h-[46vh] flex-col border-t border-stone-100 lg:w-[48%] lg:border-l lg:border-t-0" aria-label="CV preview">
-          <div className="flex items-center justify-between border-b border-white/50 px-6 py-4">
+          <div className="flex items-center justify-between border-b border-stone-200/60 px-6 py-4">
             <div>
               <p className="font-semibold text-stone-900">Live preview</p>
               <p className="text-sm text-stone-500">
-                {chat.phase === 'welcome' ? 'Waiting to start' : 'Updates as you go'}
+                {chat.phase === 'welcome' ? 'A finished example — yours builds here' : 'Updates as you go'}
               </p>
             </div>
-            {chat.phase !== 'welcome' ? (
-              <span className="flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-teal-700 shadow-sm">
+            {chat.phase === 'welcome' ? (
+              <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-stone-500 shadow-sm ring-1 ring-stone-200">
+                Example
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-teal-700 shadow-sm ring-1 ring-stone-200">
                 <span className="size-1.5 animate-pulse rounded-full bg-teal-500" />
                 Live
               </span>
-            ) : null}
+            )}
           </div>
           <div className="flex flex-1 items-start justify-center overflow-y-auto p-6 md:p-10">
-            {chat.phase === 'welcome' ? (
-              <div className="flex max-w-sm flex-col items-center justify-center py-16 text-center">
-                <div className="flex size-16 items-center justify-center rounded-2xl bg-white/80 text-teal-600 shadow-sm">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden>
-                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" strokeWidth="1.5" />
-                    <path d="M14 2v6h6M8 13h8M8 17h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                </div>
-                <p className="mt-5 text-lg font-semibold text-stone-800">Your CV appears here</p>
-                <p className="mt-2 text-sm leading-relaxed text-stone-500">Pick a path on the left to begin building.</p>
-              </div>
-            ) : (
-              <div
-                className={
-                  'doc-float w-full max-w-[210mm] bg-[#fffef9] transition-all duration-500 ' +
-                  (justGenerated ? 'ring-2 ring-teal-400/50' : '')
-                }
-              >
-                <ResumePreview
-                  resume={liveResume}
-                  a4
-                  generated={chat.phase === 'generated'}
-                  highlightSections={chat.phase === 'generated' ? highlights : undefined}
-                />
-              </div>
-            )}
+            <div
+              className={
+                'doc-float w-full max-w-[210mm] bg-white transition-all duration-500 ' +
+                (justGenerated ? 'ring-2 ring-teal-400/50' : '')
+              }
+            >
+              <ResumePreview
+                resume={liveResume}
+                a4
+                generated={chat.phase === 'generated'}
+                highlightSections={chat.phase === 'generated' ? highlights : undefined}
+              />
+            </div>
           </div>
         </section>
       </div>
