@@ -1,23 +1,25 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
 import { DEMO_MODE } from '../lib/api'
 import { Brand, Button, DemoPill } from './ui'
 import { ErrorBoundary } from './ErrorBoundary'
 
 const nav = [
-  { to: '/app/create', label: 'Create' },
+  { to: '/app/chat', label: 'Chat' },
   { to: '/app/resumes', label: 'My CVs' },
 ]
 
 export function AppShell() {
   const { logout } = useAuth()
   const navTo = useNavigate()
+  const location = useLocation()
+  const isChat = location.pathname.startsWith('/app/chat')
 
   return (
     <div className="min-h-full bg-[#f7f8fa]">
       <header className="border-b border-[#e5e7eb] bg-white">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-6">
-          <button type="button" onClick={() => navTo('/app/create')}>
+        <div className={'mx-auto flex h-14 items-center justify-between gap-4 px-6 ' + (isChat ? '' : 'max-w-5xl')}>
+          <button type="button" onClick={() => navTo('/app/chat')}>
             <Brand />
           </button>
           <nav className="hidden items-center gap-1 sm:flex">
@@ -43,7 +45,7 @@ export function AppShell() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-8">
+      <main className={isChat ? '' : 'mx-auto max-w-5xl px-6 py-8'}>
         <ErrorBoundary>
           <Outlet />
         </ErrorBoundary>

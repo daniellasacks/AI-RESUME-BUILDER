@@ -18,7 +18,7 @@ export function AuthPage() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const afterAuth = sp.get('upload') === '1' ? '/app/create?upload=1' : '/app/create'
+  const afterAuth = '/app/chat'
 
   useEffect(() => {
     if (!user) return

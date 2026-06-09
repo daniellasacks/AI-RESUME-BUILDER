@@ -6,16 +6,22 @@ type TemplateMeta = {
   sections?: string[]
 }
 
+export type PreviewSection = 'summary' | 'experience' | 'projects' | 'skills' | 'education'
+
 export function ResumePreview({
   resume,
   template,
   compact,
   a4,
+  highlightSections,
+  generated,
 }: {
   resume: ResumeJson
   template?: TemplateMeta | null
   compact?: boolean
   a4?: boolean
+  highlightSections?: PreviewSection[]
+  generated?: boolean
 }) {
   const isCompact = compact ?? template?.type === 'single-column-compact'
   const sections = template?.sections ?? ['summary', 'experience', 'projects', 'skills', 'education']
@@ -23,11 +29,17 @@ export function ResumePreview({
   const gap = isCompact ? 'gap-3' : 'gap-4'
   const textSize = a4 ? 'text-[12px] leading-relaxed' : isCompact ? 'text-[10px] leading-snug' : 'text-[11px] leading-relaxed'
 
+  const hl = (section: PreviewSection) =>
+    highlightSections?.includes(section)
+      ? 'rounded-[8px] bg-[#2563eb]/[0.06] ring-1 ring-[#2563eb]/20 -mx-1 px-1 transition-all duration-500'
+      : ''
+
   return (
     <div
       className={
-        'overflow-hidden bg-white text-zinc-900 ' +
+        'overflow-hidden bg-white text-zinc-900 transition-all duration-500 ' +
         (a4 ? 'min-h-[297mm] rounded-none border-0 ' : 'rounded-xl border border-zinc-200 shadow-inner ') +
+        (generated ? 'shadow-md ' : '') +
         textSize
       }
     >
@@ -43,13 +55,13 @@ export function ResumePreview({
         </header>
 
         {sections.includes('summary') && resume.basics.summary ? (
-          <Section title="Summary" compact={isCompact}>
+          <Section title="Summary" compact={isCompact} className={hl('summary')}>
             <p className="text-zinc-700">{resume.basics.summary}</p>
           </Section>
         ) : null}
 
         {sections.includes('experience') && (resume.experience?.length ?? 0) > 0 ? (
-          <Section title="Experience" compact={isCompact}>
+          <Section title="Experience" compact={isCompact} className={hl('experience')}>
             <div className="space-y-2">
               {resume.experience!.map((e, i) => (
                 <div key={i}>
@@ -86,7 +98,7 @@ export function ResumePreview({
         ) : null}
 
         {sections.includes('skills') && (resume.skills?.length ?? 0) > 0 ? (
-          <Section title="Skills" compact={isCompact}>
+          <Section title="Skills" compact={isCompact} className={hl('skills')}>
             <div className="space-y-1">
               {resume.skills!.map((s, i) => (
                 <div key={i}>
@@ -99,7 +111,7 @@ export function ResumePreview({
         ) : null}
 
         {sections.includes('education') && (resume.education?.length ?? 0) > 0 ? (
-          <Section title="Education" compact={isCompact}>
+          <Section title="Education" compact={isCompact} className={hl('education')}>
             <div className="space-y-1">
               {resume.education!.map((ed, i) => (
                 <div key={i}>
@@ -117,9 +129,9 @@ export function ResumePreview({
   )
 }
 
-function Section({ title, children, compact }: { title: string; children: React.ReactNode; compact?: boolean }) {
+function Section({ title, children, compact, className = '' }: { title: string; children: React.ReactNode; compact?: boolean; className?: string }) {
   return (
-    <section>
+    <section className={className}>
       <div className={'font-semibold uppercase tracking-wide text-zinc-500 ' + (compact ? 'text-[9px]' : 'text-[10px]')}>
         {title}
       </div>
